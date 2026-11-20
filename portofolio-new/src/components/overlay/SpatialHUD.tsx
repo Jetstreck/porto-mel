@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { PERSONAL_INFO, SELECTED_PROJECTS, CAPABILITIES } from '../../data/portfolioData';
 import type { Project, Capability } from '../../types';
-import { ArrowDown, Copy, Check, Mail, Compass, ArrowUp, CheckCircle2, ExternalLink } from 'lucide-react';
+import { Copy, Check, Mail, ArrowUp, ExternalLink } from 'lucide-react';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -48,7 +48,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
     if (hoveredProjectId) {
       const proj = SELECTED_PROJECTS.find((p) => p.id === hoveredProjectId) || null;
       return {
-        stageBadge: '[MANUAL INSPECTION]',
+        stageBadge: 'MANUAL INSPECTION',
         stageTitle: proj ? proj.title : 'Project Monograph',
         stageDesc: proj ? proj.subtitle : 'Direct 3D Workstation Inspection',
         activeProject: proj,
@@ -59,7 +59,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
 
     if (progress < 0.59) {
       return {
-        stageBadge: '[STAGE 01 // ARRIVAL: PROJECT ARCHIVE]',
+        stageBadge: 'ARRIVAL / ARCHIVE PANORAMA',
         stageTitle: 'Establishing Overview: Six Commissions',
         stageDesc: 'All six installations visible along the curved amphitheater plinths.',
         activeProject: null,
@@ -68,7 +68,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       };
     } else if (progress < 0.64) {
       return {
-        stageBadge: '[STAGE 02 // EXHIBITION 01/06]',
+        stageBadge: 'EXHIBITION 01/06',
         stageTitle: SELECTED_PROJECTS[0].title,
         stageDesc: SELECTED_PROJECTS[0].subtitle,
         activeProject: SELECTED_PROJECTS[0],
@@ -77,7 +77,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       };
     } else if (progress < 0.69) {
       return {
-        stageBadge: '[STAGE 02 // EXHIBITION 02/06]',
+        stageBadge: 'EXHIBITION 02/06',
         stageTitle: SELECTED_PROJECTS[1].title,
         stageDesc: SELECTED_PROJECTS[1].subtitle,
         activeProject: SELECTED_PROJECTS[1],
@@ -86,7 +86,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       };
     } else if (progress < 0.74) {
       return {
-        stageBadge: '[STAGE 03 // EXHIBITION 03/06]',
+        stageBadge: 'EXHIBITION 03/06',
         stageTitle: SELECTED_PROJECTS[2].title,
         stageDesc: SELECTED_PROJECTS[2].subtitle,
         activeProject: SELECTED_PROJECTS[2],
@@ -95,7 +95,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       };
     } else if (progress < 0.79) {
       return {
-        stageBadge: '[STAGE 03 // EXHIBITION 04/06]',
+        stageBadge: 'EXHIBITION 04/06',
         stageTitle: SELECTED_PROJECTS[3].title,
         stageDesc: SELECTED_PROJECTS[3].subtitle,
         activeProject: SELECTED_PROJECTS[3],
@@ -104,16 +104,16 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       };
     } else if (progress < 0.84) {
       return {
-        stageBadge: '[STAGE 04 // EXHIBITION 05/06]',
+        stageBadge: 'EXHIBITION 05/06',
         stageTitle: SELECTED_PROJECTS[4].title,
         stageDesc: SELECTED_PROJECTS[4].subtitle,
         activeProject: SELECTED_PROJECTS[4],
         isOverview: false,
         isClosing: false,
       };
-    } else if (progress < 0.88) {
+    } else if (progress < 0.875) {
       return {
-        stageBadge: '[STAGE 04 // EXHIBITION 06/06]',
+        stageBadge: 'EXHIBITION 06/06',
         stageTitle: SELECTED_PROJECTS[5].title,
         stageDesc: SELECTED_PROJECTS[5].subtitle,
         activeProject: SELECTED_PROJECTS[5],
@@ -122,9 +122,9 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       };
     } else {
       return {
-        stageBadge: '[STAGE 05 // ARCHIVE EXIT TRANSITION]',
+        stageBadge: 'ARCHIVE EXIT TRANSITION',
         stageTitle: 'Leaving The Project Archive',
-        stageDesc: 'Transitioning forward to Chapter 05 // Connection & Inquiries.',
+        stageDesc: 'Gliding along the gallery walkway toward the Connection Lounge.',
         activeProject: null,
         isOverview: false,
         isClosing: true,
@@ -169,8 +169,8 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
   const isCh0 = progress <= 0.18;
   const isCh1 = progress > 0.16 && progress <= 0.38;
   const isCh2 = progress > 0.36 && progress <= 0.56;
-  const isCh3 = progress > 0.54 && progress <= 0.91;
-  const isCh4 = progress > 0.88;
+  const isCh3 = progress > 0.54 && progress <= 0.915;
+  const isCh4 = progress > 0.935;
 
   // Smooth continuous cross-fading
   const op0 = progress <= 0.12 ? 1 : Math.max(0, 1 - (progress - 0.12) / 0.06);
@@ -195,74 +195,88 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       ? 0
       : progress <= 0.58
       ? (progress - 0.54) / 0.04
-      : progress <= 0.88
+      : progress <= 0.875
       ? 1
-      : Math.max(0, 1 - (progress - 0.88) / 0.03);
-  const op4 = progress < 0.88 ? 0 : Math.min(1, (progress - 0.88) / 0.05);
+      : Math.max(0, 1 - (progress - 0.875) / 0.03); // Fades completely by 0.905
+  // Chapter 05 HUD emerges only after the camera traverses the corridor and enters the lounge
+  const op4 = progress < 0.94 ? 0 : Math.min(1, (progress - 0.94) / 0.04);
 
   return (
     <div className="fixed inset-0 w-full h-full z-20 pointer-events-none select-none overflow-hidden">
       {/* ========================================================
-          STICKY TOP NAVIGATION BAR (Always accessible)
+          GLOBAL NAVBAR: REFINED EDITORIAL NAVIGATION
+          No boxed toolbar, no pill buttons, pure architectural typography
          ======================================================== */}
-      <header className="fixed top-0 left-0 w-full p-6 sm:p-10 pointer-events-auto flex items-center justify-between z-50">
-        {/* Brand identity */}
+      <header className="fixed top-0 left-0 w-full px-6 sm:px-12 lg:px-16 py-6 sm:py-8 pointer-events-auto flex items-center justify-between z-50">
+        {/* Left: Editorial Wordmark + Descriptor */}
         <button
           onClick={() => flyToChapter(0)}
-          className="flex items-center gap-3.5 group focus:outline-none"
+          className="group text-left flex items-baseline gap-3.5 focus:outline-none"
         >
-          <div className="w-9 h-9 bg-[#F1ECE3] text-[#141311] font-display font-extrabold text-sm flex items-center justify-center tracking-tighter group-hover:bg-[#A65338] group-hover:text-white transition-colors">
-            M
-          </div>
-          <div className="text-left">
-            <div className="font-display font-bold text-sm tracking-wider uppercase text-white">
-              MELLINO
-            </div>
-            <div className="font-mono text-[9px] text-[#A65338] tracking-widest uppercase">
-              DIGITAL ATELIER
-            </div>
-          </div>
+          <span className="font-display font-black text-base sm:text-lg tracking-[0.16em] text-[#F1ECE3] uppercase group-hover:text-[#A65338] transition-colors">
+            MELLINO
+          </span>
+          <span className="hidden sm:inline font-sans text-[11px] text-[#A65338] tracking-[0.2em] uppercase font-semibold">
+            / FULLSTACK DEVELOPER
+          </span>
         </button>
 
-        {/* Spatial Destination Navigation Track */}
-        <nav className="hidden md:flex items-center gap-1 bg-[#181714]/85 backdrop-blur-md px-3 py-1.5 border border-[#F1ECE3]/15">
+        {/* Center: Exhibition Chapter Index */}
+        <nav className="hidden md:flex items-center gap-7 lg:gap-9 font-sans text-xs tracking-wider">
           {chapters.map((ch) => {
             const isActive = activeChapter === ch.index;
             return (
               <button
                 key={ch.index}
                 onClick={() => flyToChapter(ch.index)}
-                className={`px-3 py-1 font-mono text-[11px] tracking-wider uppercase transition-all ${
-                  isActive
-                    ? 'bg-[#A65338] text-white font-bold'
-                    : 'text-[#F1ECE3]/60 hover:text-white'
-                }`}
+                className="group relative py-1 focus:outline-none"
               >
-                {ch.label}
+                <span
+                  className={`transition-all duration-300 block ${
+                    isActive
+                      ? 'text-[#A65338] font-bold tracking-widest'
+                      : 'text-[#B0A596] hover:text-white'
+                  }`}
+                >
+                  {ch.label}
+                </span>
+                {/* Subtle animated hairline indicator */}
+                <span
+                  className={`absolute -bottom-0.5 left-0 w-full h-[1.5px] bg-[#A65338] transition-all duration-300 origin-left ${
+                    isActive
+                      ? 'opacity-100 scale-x-100'
+                      : 'opacity-0 scale-x-0 group-hover:opacity-40 group-hover:scale-x-100'
+                  }`}
+                />
               </button>
             );
           })}
         </nav>
 
-        {/* Live Jakarta Time & Status */}
-        <div className="flex items-center gap-4 font-mono text-xs">
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[#F1ECE3]/60 uppercase text-[11px]">MALANG, ID</span>
-            <span className="text-white font-bold">{timeStr || '19:30:00 WIB'}</span>
+        {/* Right: Live Geographic Status & Editorial Inquire Link */}
+        <div className="flex items-center gap-5 sm:gap-7 font-sans text-xs">
+          <div className="hidden lg:flex items-center gap-2 text-[#B0A596] text-[11px]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#A65338]" />
+            <span>MALANG, ID</span>
+            <span className="text-[#F1ECE3]/20">/</span>
+            <span className="text-[#D1C8BB]">{timeStr}</span>
           </div>
 
           <button
             onClick={() => flyToChapter(4)}
-            className="px-3.5 py-1.5 bg-[#A65338] hover:bg-[#8e452e] text-white font-display text-xs font-bold uppercase tracking-wider transition-colors"
+            className="group relative flex items-center gap-1.5 font-sans font-semibold text-xs text-[#F1ECE3] hover:text-[#A65338] uppercase tracking-wider transition-colors"
           >
-            CONTACT
+            <span>INQUIRE</span>
+            <span className="text-xs transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              ↗
+            </span>
+            <span className="absolute -bottom-0.5 left-0 w-full h-[1px] bg-current opacity-30 group-hover:opacity-100 transition-opacity" />
           </button>
         </div>
       </header>
 
-      {/* Global Scroll Journey Progress Indicator */}
-      <div className="fixed top-0 left-0 w-full h-[2px] bg-[#F1ECE3]/10 z-50">
+      {/* Global Scroll Journey Hairline Progress Indicator */}
+      <div className="fixed top-0 left-0 w-full h-[1.5px] bg-[#F1ECE3]/10 z-50">
         <div
           className="h-full bg-[#A65338] transition-all duration-75 ease-out"
           style={{ width: `${progress * 100}%` }}
@@ -270,61 +284,67 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       </div>
 
       {/* ========================================================
-          CHAPTER 0: ENTRANCE HUD OVERLAY (p = 0.00 - 0.18)
-          Composition: Left-aligned, leaving right side open for 3D sculpture
+          CHAPTER 01: THE ENTRANCE (HERO)
+          Composition: Asymmetrical left-aligned typography leaving right side open for 3D diorama
          ======================================================== */}
       {isCh0 && (
         <div
-          className="absolute inset-0 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-between pt-36 pb-16 transition-opacity duration-300"
+          className="absolute inset-0 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-between pt-32 sm:pt-36 pb-12 sm:pb-16 transition-opacity duration-500"
           style={{
             opacity: op0,
             pointerEvents: op0 > 0.3 ? 'auto' : 'none',
             transform: `translate3d(0, ${(1 - op0) * -20}px, 0)`,
           }}
         >
-          <div className="font-mono text-xs text-[#A65338] font-bold tracking-widest uppercase">
-            [CHAPTER 01 // THE ENTRANCE]
+          {/* Section Eyebrow with hairline rule */}
+          <div className="flex items-center gap-3 font-mono text-xs text-[#A65338] font-bold tracking-widest uppercase">
+            <span>01 // THE ENTRANCE</span>
+            <span className="text-[#F1ECE3]/20">—</span>
+            <span className="text-[#E1D8CA]/60 font-normal tracking-wider">THE CREATIVE WORKSHOP</span>
           </div>
 
-          <div className="my-auto max-w-2xl space-y-4">
-            <h1 className="font-display font-extrabold text-[15vw] sm:text-[14vw] lg:text-[12vw] leading-[0.8] tracking-tighter text-[#F1ECE3] uppercase">
+          {/* Monumental Typographic Presentation */}
+          <div className="my-auto max-w-2xl space-y-5">
+            <h1 className="font-display font-black text-6xl sm:text-8xl lg:text-[116px] leading-[0.88] tracking-tighter text-[#F1ECE3] uppercase">
               Mellino
             </h1>
 
-            <div className="space-y-3 pt-2">
-              <p className="text-2xl sm:text-4xl lg:text-5xl font-serif italic text-[#E1D8CA] leading-snug">
+            <div className="space-y-3.5 pt-1">
+              <p className="text-2xl sm:text-4xl lg:text-[42px] font-serif italic text-[#E1D8CA] leading-snug">
                 &ldquo;Building digital experiences with intention.&rdquo;
               </p>
-              <p className="text-sm sm:text-base text-[#F1ECE3]/70 font-sans leading-relaxed">
-                Fullstack developer exploring the intersection of technology, design, and meaningful digital experiences. Scroll down to journey through the Digital Atelier.
+              <p className="text-sm sm:text-base text-[#D1C8BB] font-sans leading-relaxed max-w-xl">
+                Fullstack developer exploring the intersection of modern software systems, tactile 3D environments, and intentional digital craft.
               </p>
             </div>
           </div>
 
+          {/* Bottom Exhibition Direction Bar */}
           <div className="flex items-center justify-between border-t border-[#F1ECE3]/15 pt-6 font-mono text-xs text-[#F1ECE3]/60">
-            <div className="flex items-center gap-2">
-              <Compass className="w-3.5 h-3.5 text-[#A65338]" />
-              <span>SCROLL TO JOURNEY THROUGH 3D WORLD</span>
+            <div className="flex items-center gap-3">
+              <span className="w-1.5 h-1.5 bg-[#A65338]" />
+              <span className="tracking-widest uppercase text-[11px]">SCROLL TO JOURNEY THROUGH 3D WORLD</span>
             </div>
             <button
               onClick={() => flyToChapter(1)}
-              className="group flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase"
+              className="group flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase font-mono tracking-wider text-xs"
             >
-              <span>Fly to About</span>
-              <ArrowDown className="w-3.5 h-3.5 group-hover:translate-y-1 transition-transform" />
+              <span>Explore About 02</span>
+              <span className="text-sm transition-transform duration-200 group-hover:translate-x-0.5 group-hover:translate-y-0.5">
+                ↓
+              </span>
             </button>
           </div>
         </div>
       )}
 
       {/* ========================================================
-          CHAPTER 1: ABOUT / CREATOR HUD OVERLAY (p = 0.18 - 0.38)
-          Composition: Statement occupies left ~55% with ample negative space;
-          3D exhibition space sits safely on the right (x > 0) without clashing!
+          CHAPTER 02: ABOUT (THE MAKER'S EXHIBITION)
+          Composition: Asymmetrical left-dominant editorial biography & tabular metadata
          ======================================================== */}
       {isCh1 && (
         <div
-          className="absolute inset-0 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-between pt-32 sm:pt-36 pb-16 transition-opacity duration-300"
+          className="absolute inset-0 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-between pt-32 sm:pt-36 pb-12 sm:pb-16 transition-opacity duration-500"
           style={{
             opacity: op1,
             pointerEvents: op1 > 0.3 ? 'auto' : 'none',
@@ -332,131 +352,113 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
           }}
         >
           {/* Eyebrow */}
-          <div className="font-mono text-xs text-[#A65338] font-bold tracking-widest uppercase flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#A65338]" />
-            <span>THE MAKER&apos;S EXHIBITION // ABOUT ME</span>
+          <div className="flex items-center gap-3 font-mono text-xs text-[#A65338] font-bold tracking-widest uppercase">
+            <span>02 // THE MAKER&apos;S EXHIBITION</span>
+            <span className="text-[#F1ECE3]/20">—</span>
+            <span className="text-[#E1D8CA]/60 font-normal tracking-wider">CREATOR DOSSIER</span>
           </div>
 
           {/* Left-focused editorial layout */}
           <div className="my-auto max-w-xl space-y-6">
             <div className="space-y-2">
-              <div className="font-mono text-xs tracking-widest text-[#E1D8CA]/60 uppercase">
-                IDENTITY &amp; ESSENCE
+              <div className="font-mono text-[10px] tracking-[0.25em] text-[#A65338] uppercase font-bold">
+                PHILOSOPHY &amp; BACKGROUND
               </div>
-              <h2 className="text-3xl sm:text-5xl lg:text-[52px] font-serif italic text-white leading-[1.14] tracking-tight">
-                Building ideas into meaningful digital experiences.
+              <h2 className="text-3xl sm:text-5xl lg:text-[52px] font-serif italic text-white leading-[1.08] tracking-tight">
+                From physical structures to software systems.
               </h2>
             </div>
 
-            <div className="space-y-3.5 text-[#F1ECE3]/85 text-sm sm:text-base leading-relaxed font-sans">
+            <div className="space-y-3 text-[#F1ECE3]/80 text-sm sm:text-base leading-relaxed font-sans">
               <p>
-                I&apos;m Mellino, a Fullstack Developer who enjoys transforming ideas into functional, thoughtful, and engaging digital experiences.
+                I&apos;m Mellino, a Fullstack Developer who views software architecture through the lens of structural engineering—combining structural integrity with human usability.
               </p>
               <p>
-                I work across frontend and backend development, combining technical thinking with an interest in design, usability, and creative problem-solving.
-              </p>
-              <p className="text-[#E1D8CA] font-medium">
-                I believe great digital products are not only about how they work, but also about how people experience them.
+                With a background in <span className="text-[#E1D8CA] font-medium">Pendidikan Teknik Bangunan</span>, my approach to code mirrors building design: load-bearing foundations, clean contracts, and expressive spatial experiences.
               </p>
             </div>
 
-            {/* Editorial Information Metadata (Clean aligned list, not generic cards) */}
-            <div className="pt-3.5 border-t border-[#F1ECE3]/15 grid grid-cols-2 gap-x-8 gap-y-3 font-mono text-xs">
-              <div className="space-y-0.5">
-                <span className="text-[#A65338] text-[10px] tracking-widest uppercase font-bold block">
-                  ROLE
-                </span>
-                <span className="text-white font-medium text-xs sm:text-sm">
-                  Fullstack Developer
-                </span>
-              </div>
-
-              <div className="space-y-0.5">
-                <span className="text-[#A65338] text-[10px] tracking-widest uppercase font-bold block">
-                  FOCUS
-                </span>
-                <span className="text-white font-medium text-xs sm:text-sm">
-                  Web Development
-                </span>
-              </div>
-
-              <div className="space-y-0.5">
-                <span className="text-[#A65338] text-[10px] tracking-widest uppercase font-bold block">
-                  BASED IN
-                </span>
-                <span className="text-white font-medium text-xs sm:text-sm">
-                  Indonesia
-                </span>
-              </div>
-
-              <div className="space-y-0.5">
-                <span className="text-[#A65338] text-[10px] tracking-widest uppercase font-bold block">
-                  BACKGROUND
-                </span>
-                <span className="text-white font-medium text-xs sm:text-sm">
-                  Pendidikan Teknik Bangunan
-                </span>
-              </div>
+            {/* Swiss Tabular Metadata Matrix (Pure Typography, No Box Cards) */}
+            <div className="pt-2 border-t border-[#F1ECE3]/15 space-y-2.5 font-mono text-xs">
+              {[
+                { idx: '01', label: 'DISCIPLINE', val: 'Fullstack Engineering & Creative Technology' },
+                { idx: '02', label: 'FOUNDATION', val: 'Pendidikan Teknik Bangunan (Structural Systems)' },
+                { idx: '03', label: 'METHODOLOGY', val: 'Rigor, Spatial Craft & Human Empathy' },
+                { idx: '04', label: 'LOCATION', val: 'Malang, East Java, Indonesia (07°58′S, 112°37′E)' },
+              ].map((row) => (
+                <div key={row.idx} className="flex items-baseline justify-between py-1.5 border-b border-[#F1ECE3]/10 gap-4">
+                  <div className="flex items-baseline gap-2.5 shrink-0">
+                    <span className="text-[#A65338] text-[10px] font-bold">[{row.idx}]</span>
+                    <span className="text-[#E1D8CA]/60 text-[11px] tracking-wider uppercase">{row.label}</span>
+                  </div>
+                  <span className="text-white font-medium text-xs sm:text-sm text-right truncate">
+                    {row.val}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="flex items-center justify-between border-t border-[#F1ECE3]/15 pt-6 font-mono text-xs text-[#F1ECE3]/60">
-            <span>MALANG, EAST JAVA // 07°58′S 112°37′E</span>
+            <span>MALANG, EAST JAVA // INDONESIA</span>
             <button
               onClick={() => flyToChapter(2)}
-              className="group flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase"
+              className="group flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase font-mono tracking-wider text-xs"
             >
-              <span>Proceed to Expertise</span>
-              <ArrowDown className="w-3.5 h-3.5 group-hover:translate-y-1 transition-transform" />
+              <span>Proceed to Expertise 03</span>
+              <span className="text-sm transition-transform duration-200 group-hover:translate-x-0.5 group-hover:translate-y-0.5">
+                ↓
+              </span>
             </button>
           </div>
         </div>
       )}
 
       {/* ========================================================
-          CHAPTER 2: EXPERTISE HUD OVERLAY (p = 0.38 - 0.58)
-          Composition: Positioned on the RIGHT side of the screen;
-          3D Engineering Lab sits safely on the left (x < 0) with zero overlap!
+          CHAPTER 03: EXPERTISE (THE ENGINEERING LAB)
+          Composition: Right-aligned Architectural Technical Specimen Sheet
+          Zero generic boxes; inline typographic technology architecture
          ======================================================== */}
       {isCh2 && (
         <div
-          className="absolute inset-0 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-between pt-32 sm:pt-36 pb-16 transition-opacity duration-300"
+          className="absolute inset-0 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-between pt-32 sm:pt-36 pb-12 sm:pb-16 transition-opacity duration-500"
           style={{
             opacity: op2,
             pointerEvents: op2 > 0.3 ? 'auto' : 'none',
             transform: `translate3d(0, ${(1 - op2) * 20}px, 0)`,
           }}
         >
-          {/* Eyebrow and Section Header */}
+          {/* Section Header */}
           <div className="flex items-center justify-between border-b border-[#F1ECE3]/15 pb-3 font-mono text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#A65338]" />
+            <div className="flex items-center gap-3">
               <span className="text-[#A65338] font-bold tracking-widest uppercase">
-                [CHAPTER 03 // THE ENGINEERING LAB]
+                03 // THE ENGINEERING LAB
               </span>
+              <span className="text-[#F1ECE3]/20">—</span>
+              <span className="text-[#E1D8CA]/60 tracking-wider">TECHNICAL SPECIFICATIONS</span>
             </div>
             <span className="text-[#E1D8CA]/60 tracking-wider hidden sm:inline">
               4 CORE DISCIPLINES &bull; INTERFACE TO INFRASTRUCTURE
             </span>
           </div>
 
-          {/* Right-aligned content block leaving left side 100% open for 3D Engineering Lab */}
+          {/* Right-aligned architectural specimen content */}
           <div className="my-auto flex justify-end">
-            <div className="w-full max-w-xl bg-[#161513]/90 border border-[#F1ECE3]/15 p-6 sm:p-8 backdrop-blur-md space-y-5 shadow-2xl">
+            <div className="w-full max-w-xl space-y-6">
               <div>
-                <span className="font-mono text-xs text-[#A65338] uppercase font-bold tracking-widest block">
+                <span className="font-mono text-[10px] text-[#A65338] uppercase font-bold tracking-[0.25em] block">
                   TECHNICAL CRAFT &bull; ARCHITECTURE
                 </span>
-                <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-serif italic text-white leading-tight mt-1">
+                <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight mt-1">
                   EXPERTISE
                 </h2>
-                <p className="text-sm sm:text-base text-[#E1D8CA]/90 font-sans mt-2 leading-relaxed">
-                  Engineering thoughtful digital experiences, from interface to infrastructure.
+                <p className="text-base sm:text-lg text-[#E1D8CA]/90 font-serif italic mt-1 leading-snug">
+                  Disciplined engineering from interface to infrastructure.
                 </p>
               </div>
 
-              {/* Discipline Switcher Tabs */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
+              {/* Typographic Discipline Switcher (No Boxed Buttons) */}
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 border-b border-[#F1ECE3]/15 pb-2 font-mono text-xs">
                 {[
                   { id: 'frontend-architecture', label: '01 FRONTEND' },
                   { id: 'fullstack-systems', label: '02 BACKEND' },
@@ -495,30 +497,34 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                           });
                         }
                       }}
-                      className={`px-2.5 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-all border text-center ${
-                        isSelected
-                          ? 'border-[#A65338] bg-[#A65338] text-white font-bold'
-                          : 'border-[#F1ECE3]/15 bg-[#11100E]/70 text-[#F1ECE3]/60 hover:text-white hover:border-[#F1ECE3]/30'
-                      }`}
+                      className="group relative pb-1 focus:outline-none"
                     >
-                      {item.label}
+                      <span
+                        className={`transition-all duration-200 tracking-wider text-xs ${
+                          isSelected
+                            ? 'text-[#A65338] font-bold'
+                            : 'text-[#F1ECE3]/50 hover:text-white'
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+                      <span
+                        className={`absolute bottom-0 left-0 w-full h-[1.5px] bg-[#A65338] transition-all duration-300 origin-left ${
+                          isSelected ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-40'
+                        }`}
+                      />
                     </button>
                   );
                 })}
               </div>
 
-              {/* Active Discipline Dossier */}
-              <div className="space-y-3.5 pt-2 border-t border-[#F1ECE3]/10">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-xl font-display font-bold text-white block">
-                      {selectedCapability.name}
-                    </span>
-                    <span className="text-xs text-[#E1D8CA]/70 font-sans italic">
-                      {selectedCapability.tagline}
-                    </span>
-                  </div>
-                  <span className="font-mono text-xs text-[#A65338] font-bold px-2 py-0.5 border border-[#A65338]/30 bg-[#A65338]/10">
+              {/* Active Discipline Dossier Spec Sheet */}
+              <div className="space-y-4">
+                <div className="flex items-baseline justify-between gap-4">
+                  <h3 className="text-xl sm:text-2xl font-display font-bold text-white">
+                    {selectedCapability.name}
+                  </h3>
+                  <span className="font-mono text-xs text-[#A65338] font-bold shrink-0">
                     SPEC // {selectedCapability.number}
                   </span>
                 </div>
@@ -527,39 +533,39 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                   {selectedCapability.description}
                 </p>
 
-                {/* Relevant Technology Badges */}
-                <div className="space-y-1.5">
-                  <span className="text-[10px] font-mono text-[#A65338] uppercase font-bold tracking-wider block">
-                    RELEVANT TECHNOLOGIES
+                {/* Technology Architecture: Typographic Inline List (NO PILL CHIPS) */}
+                <div className="pt-2 border-t border-[#F1ECE3]/10 space-y-1">
+                  <span className="text-[10px] font-mono text-[#A65338] uppercase font-bold tracking-widest block">
+                    TECHNOLOGY MATRIX
                   </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedCapability.technologies.map((tech, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-0.5 bg-[#1F1E1B] border border-[#F1ECE3]/15 font-mono text-[10px] text-[#F1ECE3]"
-                      >
-                        {tech}
-                      </span>
+                  <div className="font-mono text-xs text-[#E1D8CA] leading-relaxed tracking-wider">
+                    {selectedCapability.technologies.join('  /  ')}
+                  </div>
+                </div>
+
+                {/* Core Deliverables: Minimalist Typographic List */}
+                <div className="pt-2 border-t border-[#F1ECE3]/10 space-y-2">
+                  <span className="text-[10px] font-mono text-[#A65338] uppercase font-bold tracking-widest block">
+                    VERIFIED DELIVERABLES
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs font-mono text-[#F1ECE3]/85">
+                    {selectedCapability.deliverables.map((del, dIdx) => (
+                      <div key={dIdx} className="flex items-baseline gap-2">
+                        <span className="text-[#A65338] font-bold">—</span>
+                        <span className="truncate">{del}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Architectural Focus Bar */}
-                <div className="p-3 bg-[#11100E] border-l-2 border-[#A65338] text-xs font-mono text-[#F1ECE3]">
-                  <span className="text-[#A65338] uppercase font-bold block text-[10px] mb-0.5">
-                    ARCHITECTURAL FOCUS
+                {/* Architectural Benchmark Focus */}
+                <div className="pt-2 border-t border-[#F1ECE3]/10 flex items-baseline gap-2 font-mono text-xs">
+                  <span className="text-[#A65338] text-[10px] font-bold tracking-widest uppercase shrink-0">
+                    FOCUS:
                   </span>
-                  {selectedCapability.architecturalFocus}
-                </div>
-
-                {/* Deliverables Grid */}
-                <div className="grid grid-cols-2 gap-2 text-xs pt-1">
-                  {selectedCapability.deliverables.slice(0, 4).map((d, i) => (
-                    <div key={i} className="flex items-center gap-2 text-[#E1D8CA]/90">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#A65338] shrink-0" />
-                      <span className="truncate">{d}</span>
-                    </div>
-                  ))}
+                  <span className="text-[#E1D8CA]/80 italic font-serif text-sm">
+                    {selectedCapability.architecturalFocus}
+                  </span>
                 </div>
               </div>
             </div>
@@ -569,24 +575,24 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             <span>DISCIPLINED SYSTEMS &bull; SUB-SECOND LATENCY &bull; 60 FPS WEBGL</span>
             <button
               onClick={() => flyToChapter(3)}
-              className="group flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase"
+              className="group flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase font-mono tracking-wider text-xs"
             >
-              <span>Proceed to Projects</span>
-              <ArrowDown className="w-3.5 h-3.5 group-hover:translate-y-1 transition-transform" />
+              <span>Proceed to Projects 04</span>
+              <span className="text-sm transition-transform duration-200 group-hover:translate-x-0.5 group-hover:translate-y-0.5">
+                ↓
+              </span>
             </button>
           </div>
         </div>
       )}
 
       {/* ========================================================
-          CHAPTER 3: PROJECTS EXHIBITION HUD (p = 0.58 - 0.84)
-          Composition: The 6 3D project portals are completely visible in the center!
-          NO GIANT 6-CARD GRID OVER THEM!
-          Instead, a sleek top header and bottom interactive dock!
+          CHAPTER 04: PROJECTS (THE PROJECT ARCHIVE)
+          Redesigned: Floating Editorial Monograph Callout + Exhibition Catalogue Index
          ======================================================== */}
       {isCh3 && (
         <div
-          className="absolute inset-0 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-between pt-36 pb-16 transition-opacity duration-300"
+          className="absolute inset-0 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-between pt-32 sm:pt-36 pb-12 sm:pb-16 transition-opacity duration-500"
           style={{
             opacity: op3,
             pointerEvents: op3 > 0.3 ? 'auto' : 'none',
@@ -594,62 +600,66 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
           }}
         >
           {/* Top Curatorial Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[#F1ECE3]/15 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 border-b border-[#F1ECE3]/15 pb-4">
             <div>
               <div className="font-mono text-xs text-[#A65338] font-bold tracking-widest uppercase">
-                [CHAPTER 04 // {ch4Info.stageBadge}]
+                04 // THE PROJECT ARCHIVE &bull; {ch4Info.stageBadge}
               </div>
-              <h2 className="mt-1 text-3xl sm:text-5xl font-display font-extrabold text-white tracking-tight">
+              <h2 className="mt-1 text-2xl sm:text-4xl font-display font-extrabold text-white tracking-tight">
                 {ch4Info.isOverview ? 'Selected Commissions.' : ch4Info.stageTitle}
               </h2>
             </div>
             <div className="font-mono text-xs text-[#E1D8CA]/70 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#A65338] animate-ping" />
-              <span>{ch4Info.stageDesc.toUpperCase()}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#A65338]" />
+              <span className="tracking-wider uppercase text-[11px]">{ch4Info.stageDesc}</span>
             </div>
           </div>
 
-          {/* Curatorial Dossier Callout Card (Floating Top-Right without covering center 3D) */}
+          {/* Floating Editorial Monograph Callout Plate (Top Right) */}
           <div className="min-h-24 flex items-center justify-end pointer-events-none mt-2">
             {ch4Info.isOverview && (
-              <div className="max-w-md bg-[#181714]/90 backdrop-blur-md border border-[#F1ECE3]/20 px-5 py-3.5 shadow-2xl animate-fadeIn">
-                <div className="font-mono text-[10px] text-[#A65338] font-bold uppercase tracking-wider">
-                  [STAGE 01 // ARRIVAL PANORAMA]
+              <div className="max-w-md p-5 bg-[#181714]/85 backdrop-blur-md border border-[#F1ECE3]/15 shadow-xl space-y-1">
+                <div className="font-mono text-[10px] text-[#A65338] font-bold uppercase tracking-widest">
+                  STAGE 01 // ARRIVAL PANORAMA
                 </div>
-                <div className="font-display font-bold text-white text-sm mt-0.5">
+                <div className="font-display font-bold text-white text-base">
                   The Continuous Exhibition Amphitheater
                 </div>
-                <div className="font-mono text-xs text-[#E1D8CA]/70 mt-1 leading-relaxed">
-                  All 6 installations are physically present. Scroll forward to begin the continuous 3D tour from 01 to 06.
-                </div>
+                <p className="font-mono text-xs text-[#E1D8CA]/70 leading-relaxed pt-1">
+                  All six installations are physically present along the curved gallery. Scroll forward to begin the continuous tour from 01 to 06.
+                </p>
               </div>
             )}
 
             {ch4Info.activeProject && (
               <div
                 onClick={() => onSelectProject(ch4Info.activeProject!)}
-                className="pointer-events-auto cursor-pointer max-w-md bg-[#181714]/95 backdrop-blur-md border border-[#A65338] p-4 shadow-2xl transition-all hover:bg-[#1D1C19] animate-fadeIn"
+                className="pointer-events-auto cursor-pointer max-w-lg p-5 sm:p-6 bg-[#181714]/90 backdrop-blur-md border border-[#A65338]/60 shadow-2xl transition-all hover:border-[#A65338] group space-y-3"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 font-mono text-[10px] text-[#A65338]">
-                    <span className="font-bold">[{ch4Info.activeProject.number} / 06]</span>
-                    <span className="text-[#F1ECE3]/40">&bull;</span>
-                    <span className="uppercase text-[#E1D8CA]/80">{ch4Info.activeProject.category}</span>
+                <div className="flex items-center justify-between gap-3 font-mono text-[10px]">
+                  <div className="flex items-center gap-2 text-[#A65338] font-bold">
+                    <span>PROJECT / {ch4Info.activeProject.number}</span>
+                    <span className="text-[#F1ECE3]/30">&bull;</span>
+                    <span className="text-[#E1D8CA]/80 uppercase">{ch4Info.activeProject.category}</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#F1ECE3]/50">{ch4Info.activeProject.year}</span>
+                  <span className="text-[#F1ECE3]/50">{ch4Info.activeProject.year}</span>
                 </div>
-                <div className="font-display font-extrabold text-white text-base mt-1">
-                  {ch4Info.activeProject.title}
+
+                <div className="space-y-1">
+                  <h3 className="font-display font-extrabold text-white text-lg sm:text-xl group-hover:text-[#A65338] transition-colors">
+                    {ch4Info.activeProject.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#E1D8CA]/80 line-clamp-2 leading-relaxed font-sans">
+                    {ch4Info.activeProject.description}
+                  </p>
                 </div>
-                <p className="text-xs text-[#E1D8CA]/80 mt-1 line-clamp-2 leading-relaxed">
-                  {ch4Info.activeProject.description}
-                </p>
-                <div className="mt-2.5 pt-2 border-t border-[#F1ECE3]/10 flex items-center justify-between gap-2">
-                  <div className="font-mono text-[10px] text-[#F1ECE3]/60 truncate">
-                    {ch4Info.activeProject.techStack.join(' • ')}
+
+                <div className="pt-2 border-t border-[#F1ECE3]/10 flex items-center justify-between gap-3 font-mono text-xs">
+                  <div className="text-[10px] text-[#F1ECE3]/60 truncate">
+                    {ch4Info.activeProject.techStack.join('  /  ')}
                   </div>
-                  <div className="shrink-0 flex items-center gap-1.5 font-mono text-[11px] font-bold text-[#A65338] bg-[#A65338]/15 px-2.5 py-1 border border-[#A65338]/40 hover:bg-[#A65338] hover:text-white transition-colors">
-                    <span>INSPECT CASE STUDY</span>
+                  <div className="shrink-0 flex items-center gap-1.5 text-xs font-bold text-[#A65338] group-hover:translate-x-1 transition-transform">
+                    <span>VIEW CASE STUDY</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </div>
                 </div>
@@ -657,30 +667,30 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             )}
 
             {ch4Info.isClosing && (
-              <div className="max-w-md bg-[#181714]/90 backdrop-blur-md border border-[#A65338] px-5 py-3.5 shadow-2xl animate-fadeIn">
-                <div className="font-mono text-[10px] text-[#A65338] font-bold uppercase tracking-wider">
-                  [STAGE 05 // ARCHIVE EXIT]
+              <div className="max-w-md p-5 bg-[#181714]/85 backdrop-blur-md border border-[#A65338] shadow-xl space-y-1">
+                <div className="font-mono text-[10px] text-[#A65338] font-bold uppercase tracking-widest">
+                  STAGE 05 // ARCHIVE EXIT
                 </div>
-                <div className="font-display font-bold text-white text-sm mt-0.5">
+                <div className="font-display font-bold text-white text-base">
                   Leaving The Project Archive
                 </div>
-                <div className="font-mono text-xs text-[#E1D8CA]/70 mt-1 leading-relaxed">
-                  Proceeding forward through the portal toward Chapter 05 // Connection & Inquiries.
-                </div>
+                <p className="font-mono text-xs text-[#E1D8CA]/70 leading-relaxed pt-1">
+                  Proceeding forward through the portal into Chapter 05 // The Connection Lounge.
+                </p>
               </div>
             )}
           </div>
 
-          {/* Center viewport is 100% OPEN for the 3D portals! */}
+          {/* Center viewport is 100% OPEN for the 3D installations */}
           <div className="my-auto pointer-events-none" />
 
-          {/* Bottom Project Selector Dock */}
+          {/* Bottom Exhibition Index: Curated Horizontal Gallery Strip */}
           <div className="space-y-4">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pointer-events-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 border-y border-[#F1ECE3]/15 divide-y sm:divide-y-0 sm:divide-x divide-[#F1ECE3]/10 bg-[#161513]/80 backdrop-blur-md pointer-events-auto">
               {SELECTED_PROJECTS.map((proj, idx) => {
                 const isHovered = hoveredProjectId === proj.id;
                 const isCurrentActive = ch4Info.activeProject?.id === proj.id;
-                const TARGET_PROGRESS = [0.62, 0.67, 0.72, 0.77, 0.82, 0.86];
+                const TARGET_PROGRESS = [0.62, 0.67, 0.72, 0.77, 0.82, 0.85];
 
                 return (
                   <button
@@ -693,16 +703,29 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                       }
                       onSelectProject(proj);
                     }}
-                    className={`p-3 bg-[#181714]/90 backdrop-blur-md border text-left transition-all ${
+                    className={`relative p-3.5 sm:p-4 text-left transition-all duration-200 group focus:outline-none ${
                       isCurrentActive || isHovered
-                        ? 'border-[#A65338] bg-[#A65338]/25 -translate-y-1 text-white shadow-xl ring-1 ring-[#A65338]'
-                        : 'border-[#F1ECE3]/15 text-[#F1ECE3]/70 hover:border-[#F1ECE3]/40 hover:text-white'
+                        ? 'bg-[#1D1C19]'
+                        : 'hover:bg-[#1A1916]'
                     }`}
                   >
-                    <div className="font-mono text-[10px] text-[#A65338] font-bold">
-                      [{proj.number}]
+                    {/* Top Active Indicator Line */}
+                    <span
+                      className={`absolute top-0 left-0 w-full h-[2px] bg-[#A65338] transition-all duration-200 ${
+                        isCurrentActive || isHovered ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    />
+
+                    <div className="flex items-baseline justify-between mb-1">
+                      <span className="font-mono text-[10px] text-[#A65338] font-bold">
+                        {proj.number}
+                      </span>
+                      <span className="font-mono text-[9px] text-[#F1ECE3]/40 group-hover:text-[#F1ECE3]/80 transition-colors uppercase">
+                        {proj.category.split('/')[0]}
+                      </span>
                     </div>
-                    <div className="font-display font-bold text-xs truncate mt-0.5">
+
+                    <div className="font-display font-bold text-xs sm:text-sm text-white truncate">
                       {proj.title.split('—')[0]}
                     </div>
                   </button>
@@ -711,13 +734,15 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             </div>
 
             <div className="flex items-center justify-between border-t border-[#F1ECE3]/15 pt-4 font-mono text-xs text-[#F1ECE3]/60">
-              <span>06 VERIFIED PRODUCTION CASE STUDIES</span>
+              <span>06 VERIFIED CASE STUDIES &bull; DESKTOP 16:10 WEB EXPERIENCES</span>
               <button
                 onClick={() => flyToChapter(4)}
-                className="group flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase pointer-events-auto"
+                className="group flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase pointer-events-auto font-mono text-xs"
               >
-                <span>Proceed to Contact</span>
-                <ArrowDown className="w-3.5 h-3.5 group-hover:translate-y-1 transition-transform" />
+                <span>Proceed to Contact 05</span>
+                <span className="text-sm transition-transform duration-200 group-hover:translate-x-0.5 group-hover:translate-y-0.5">
+                  ↓
+                </span>
               </button>
             </div>
           </div>
@@ -725,106 +750,220 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       )}
 
       {/* ========================================================
-          CHAPTER 4: CONTACT / CONNECTION HUD (p = 0.84 - 1.00)
-          Composition: Framed neatly between the grand gateway pylons
+          CHAPTER 05: THE CONNECTION LOUNGE (CONTACT)
+          Composition: Architectural Editorial Two-Column Directory & Signature Footer
          ======================================================== */}
       {isCh4 && (
         <div
-          className="absolute inset-0 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-between pt-36 pb-16 transition-opacity duration-300"
+          className="absolute inset-0 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-between pt-32 sm:pt-36 pb-12 sm:pb-16 transition-opacity duration-500 overflow-y-auto no-scrollbar pointer-events-none"
           style={{
             opacity: op4,
             pointerEvents: op4 > 0.3 ? 'auto' : 'none',
             transform: `translate3d(0, ${(1 - op4) * 20}px, 0)`,
           }}
         >
-          <div className="font-mono text-xs text-[#A65338] font-bold tracking-widest uppercase">
-            [CHAPTER 05 // THE CONNECTION]
-          </div>
-
-          <div className="my-auto space-y-6 max-w-2xl">
-            <div className="space-y-3">
-              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-display font-extrabold tracking-tight text-white leading-[0.95]">
-                Let&apos;s build something meaningful.
-              </h2>
-              <p className="text-xl sm:text-2xl font-serif italic text-[#E1D8CA]">
-                &ldquo;Available for select opportunities &amp; bespoke commissions.&rdquo;
-              </p>
-            </div>
-
-            {/* Direct Copy Transmission Card */}
-            <div className="p-6 bg-[#181714]/85 border border-[#F1ECE3]/15 backdrop-blur-md space-y-4">
-              <span className="font-mono text-xs uppercase text-[#A65338] font-bold tracking-widest block">
-                DIRECT TRANSMISSION ADDRESS
+          {/* Eyebrow & Status Header */}
+          <div className="flex items-center justify-between border-b border-[#F1ECE3]/15 pb-4">
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-xs text-[#A65338] font-bold tracking-widest uppercase">
+                05 // THE CONNECTION LOUNGE
               </span>
-              <div className="font-display font-bold text-2xl sm:text-3xl text-white break-all">
-                {PERSONAL_INFO.email}
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={handleCopyEmail}
-                  className="flex-1 px-5 py-3 bg-[#A65338] hover:bg-[#8e452e] text-white font-mono text-xs uppercase font-bold transition-all flex items-center justify-center gap-2"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4 text-white" />
-                      <span>Copied to Clipboard</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      <span>Copy Email</span>
-                    </>
-                  )}
-                </button>
-
-                <a
-                  href={`mailto:${PERSONAL_INFO.email}`}
-                  className="px-5 py-3 bg-[#F1ECE3] hover:bg-white text-[#141311] font-mono text-xs uppercase font-bold transition-all flex items-center justify-center gap-2"
-                >
-                  <Mail className="w-4 h-4" />
-                  <span>Send Mail</span>
-                </a>
-              </div>
+              <span className="text-[#F1ECE3]/20">—</span>
+              <span className="font-mono text-xs text-[#E1D8CA]/70 tracking-wider uppercase">
+                COMMISSION INQUIRIES
+              </span>
             </div>
 
-            {/* Social Conduits */}
-            <div className="flex items-center gap-6 font-mono text-xs">
-              <a
-                href={PERSONAL_INFO.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-[#F1ECE3]/70 hover:text-white transition-colors"
-              >
-                <GithubIcon className="w-4 h-4 text-[#A65338]" />
-                <span>GitHub</span>
-              </a>
-              <span className="text-[#F1ECE3]/20">/</span>
-              <a
-                href={PERSONAL_INFO.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-[#F1ECE3]/70 hover:text-white transition-colors"
-              >
-                <LinkedinIcon className="w-4 h-4 text-[#A65338]" />
-                <span>LinkedIn</span>
-              </a>
-              <span className="text-[#F1ECE3]/20">/</span>
-              <span className="text-[#F1ECE3]/50">MALANG, ID (07°58′S, 112°37′E)</span>
+            <div className="hidden sm:flex items-center gap-2 font-mono text-xs text-[#22C55E]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
+              <span className="tracking-wider uppercase text-[11px] font-semibold">
+                AVAILABLE FOR COMMISSIONS
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-[#F1ECE3]/15 pt-6 font-mono text-xs text-[#F1ECE3]/50">
-            <div>
-              MELLINO © {CURRENT_YEAR} — THE DIGITAL ATELIER.
+          {/* Balanced Two-Column Architectural Layout */}
+          <div className="my-auto py-6 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start pointer-events-auto">
+            
+            {/* LEFT COLUMN: Narrative, Identity Spec Table & Primary CTA */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="space-y-3">
+                <h2 className="text-3xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-white leading-[1.02]">
+                  Have an idea? Let&apos;s build something meaningful.
+                </h2>
+                <p className="text-base sm:text-lg font-serif italic text-[#E1D8CA]/90 leading-relaxed max-w-xl">
+                  &ldquo;I&apos;m always open to discussing new projects, creative collaborations, and opportunities to build meaningful digital experiences.&rdquo;
+                </p>
+              </div>
+
+              {/* Swiss Tabular Specifications (No Cards) */}
+              <div className="border-y border-[#F1ECE3]/15 divide-y divide-[#F1ECE3]/10 font-mono text-xs">
+                {[
+                  { label: 'CREATOR', val: 'Mellino' },
+                  { label: 'ROLE', val: 'Fullstack Developer & Creative Technologist' },
+                  { label: 'ORIGIN', val: 'Indonesia (UTC+7 / WIB)' },
+                  { label: 'STATUS', val: 'Open for Select Commissions' },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-baseline justify-between py-2">
+                    <span className="text-[#A65338] text-[10px] font-bold tracking-widest uppercase">
+                      {item.label}
+                    </span>
+                    <span className="text-white text-right font-medium">
+                      {item.val}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Primary Call to Action Statement */}
+              <div className="pt-2 space-y-3">
+                <span className="font-mono text-xs uppercase text-[#A65338] font-bold tracking-widest block">
+                  LET&apos;S CREATE WHAT&apos;S NEXT.
+                </span>
+                <p className="text-sm text-[#F1ECE3]/80 leading-relaxed max-w-xl">
+                  Have an ambitious project, an inquiry, or an opportunity? I&apos;d love to hear about it.
+                </p>
+
+                <div className="pt-1">
+                  <a
+                    href={`mailto:${PERSONAL_INFO.email}`}
+                    className="group inline-flex items-center gap-3 font-mono text-sm uppercase font-bold text-white tracking-wider relative pb-1 focus:outline-none"
+                  >
+                    <Mail className="w-4 h-4 text-[#A65338]" />
+                    <span className="group-hover:text-[#A65338] transition-colors">START A CONVERSATION</span>
+                    <span className="text-sm transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1">
+                      ↗
+                    </span>
+                    <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#A65338] transition-all origin-left" />
+                  </a>
+                </div>
+              </div>
             </div>
-            <button
-              onClick={() => flyToChapter(0)}
-              className="flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase pointer-events-auto"
-            >
-              <span>Return to Entrance</span>
-              <ArrowUp className="w-3.5 h-3.5" />
-            </button>
+
+            {/* RIGHT COLUMN: 3 Architectural Channel Entries (Editorial Directory) */}
+            <div className="lg:col-span-5 border-t lg:border-t-0 border-[#F1ECE3]/15 divide-y divide-[#F1ECE3]/15">
+              
+              {/* Channel 01: LinkedIn */}
+              <div className="py-5 space-y-1.5 group">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[10px] text-[#A65338] font-bold tracking-widest uppercase">
+                    01 // PROFESSIONAL NETWORK
+                  </span>
+                  <LinkedinIcon className="w-4 h-4 text-[#E1D8CA]/50 group-hover:text-[#A65338] transition-colors" />
+                </div>
+                <h3 className="font-display font-bold text-lg text-white">LinkedIn</h3>
+                <p className="font-mono text-xs text-[#F1ECE3]/60 leading-relaxed">
+                  Professional monograph, career journey, and direct industry network.
+                </p>
+                <div className="pt-1">
+                  <a
+                    href={PERSONAL_INFO.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-[#F1ECE3] hover:text-[#A65338] uppercase tracking-wider transition-colors"
+                  >
+                    <span>Connect on LinkedIn</span>
+                    <span className="text-xs">↗</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Channel 02: GitHub */}
+              <div className="py-5 space-y-1.5 group">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[10px] text-[#A65338] font-bold tracking-widest uppercase">
+                    02 // SOURCE CODE & CRAFT
+                  </span>
+                  <GithubIcon className="w-4 h-4 text-[#E1D8CA]/50 group-hover:text-[#A65338] transition-colors" />
+                </div>
+                <h3 className="font-display font-bold text-lg text-white">GitHub</h3>
+                <p className="font-mono text-xs text-[#F1ECE3]/60 leading-relaxed">
+                  Production repositories, architecture experiments, and commit logs.
+                </p>
+                <div className="pt-1">
+                  <a
+                    href={PERSONAL_INFO.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-[#F1ECE3] hover:text-[#A65338] uppercase tracking-wider transition-colors"
+                  >
+                    <span>Explore GitHub</span>
+                    <span className="text-xs">↗</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Channel 03: Direct Email */}
+              <div className="py-5 space-y-1.5 group">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[10px] text-[#A65338] font-bold tracking-widest uppercase">
+                    03 // DIRECT TRANSMISSION
+                  </span>
+                  <Mail className="w-4 h-4 text-[#E1D8CA]/50 group-hover:text-[#A65338] transition-colors" />
+                </div>
+                <h3 className="font-display font-bold text-lg text-white">Direct Correspondence</h3>
+                <div className="font-mono text-xs text-[#E1D8CA] py-1 select-all break-all">
+                  {PERSONAL_INFO.email}
+                </div>
+                <div className="flex items-center gap-4 pt-1">
+                  <a
+                    href={`mailto:${PERSONAL_INFO.email}`}
+                    className="inline-flex items-center gap-1 font-mono text-xs uppercase font-bold text-white hover:text-[#A65338] transition-colors"
+                  >
+                    <span>Send Mail</span>
+                    <span className="text-xs">↗</span>
+                  </a>
+                  <span className="text-[#F1ECE3]/20">/</span>
+                  <button
+                    onClick={handleCopyEmail}
+                    className="inline-flex items-center gap-1.5 font-mono text-xs uppercase text-[#E1D8CA]/80 hover:text-white transition-colors"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-[#22C55E]" />
+                        <span className="text-[#22C55E] font-bold">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy Address</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Signature Architectural Footer */}
+          <div className="flex flex-col sm:flex-row items-center justify-between border-t border-[#F1ECE3]/15 pt-5 gap-4 font-mono text-xs text-[#F1ECE3]/60 pointer-events-auto">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-center sm:text-left">
+              <span className="font-bold text-white tracking-wider">MELLINO</span>
+              <span className="text-[#F1ECE3]/30">•</span>
+              <span className="tracking-wide">FULLSTACK DEVELOPER</span>
+              <span className="text-[#F1ECE3]/30 hidden md:inline">•</span>
+              <span className="text-[#E1D8CA]/60 hidden md:inline">&ldquo;Designed and developed with intention.&rdquo;</span>
+            </div>
+
+            <div className="flex items-center gap-6">
+              <div className="hidden lg:flex items-center gap-2 text-[#F1ECE3]/40 text-[11px]">
+                <span>MALANG, INDONESIA</span>
+                <span>({timeStr})</span>
+              </div>
+
+              <div className="text-[#F1ECE3]/40">
+                © {CURRENT_YEAR} MELLINO
+              </div>
+
+              <button
+                onClick={() => flyToChapter(0)}
+                className="group flex items-center gap-1.5 text-white hover:text-[#A65338] transition-colors uppercase font-bold text-xs pointer-events-auto"
+              >
+                <span>Return to Entrance</span>
+                <ArrowUp className="w-3.5 h-3.5 group-hover:-translate-y-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
         </div>
       )}

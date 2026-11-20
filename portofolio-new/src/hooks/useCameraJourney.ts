@@ -36,10 +36,10 @@ export function useCameraJourney(): [
           setActiveChapter(1); // About
         } else if (p < 0.54) {
           setActiveChapter(2); // Expertise
-        } else if (p < 0.90) {
-          setActiveChapter(3); // Projects (covers all 5 stages & 8 waypoints from 0.54 to 0.90)
+        } else if (p < 0.935) {
+          setActiveChapter(3); // Projects (covers all 6 projects, exit pull-back & corridor entrance)
         } else {
-          setActiveChapter(4); // Contact (0.90 to 1.00)
+          setActiveChapter(4); // Contact (0.935 to 1.00)
         }
       },
     });
@@ -61,7 +61,7 @@ export function useCameraJourney(): [
   const flyToChapter = (chapter: 0 | 1 | 2 | 3 | 4) => {
     // Exact progress targets for each chapter
     // 0: Entrance, 1: About, 2: Expertise, 3: Projects (Archive Arrival Overview), 4: Contact
-    const chapterTargets = [0.0, 0.26, 0.46, 0.57, 0.98];
+    const chapterTargets = [0.0, 0.26, 0.46, 0.57, 0.99];
     const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
     const targetY = totalScroll * chapterTargets[chapter];
 

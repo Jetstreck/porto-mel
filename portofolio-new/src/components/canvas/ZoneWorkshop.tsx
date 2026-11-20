@@ -958,22 +958,21 @@ export const ZoneWorkshop: React.FC<ZoneWorkshopProps> = ({
   useFrame(() => {
     if (!groupRef.current) return;
 
-    // Strict chapter isolation: active between 0.54 and 0.92
-    const isVisible = progress >= 0.54 && progress <= 0.92;
+    // Active from 0.54 through 0.965 (seamless continuity through exit portal & connecting corridor)
+    const isVisible = progress >= 0.54 && progress <= 0.965;
     groupRef.current.visible = isVisible;
     if (!isVisible) return;
 
-    // Smooth transition in (0.54 to 0.58) and out (0.88 to 0.92)
-    let factor = 1.0;
+    // Smooth arrival rise (0.54 to 0.58); completely stationary & rock-solid through exit!
     if (progress < 0.58) {
-      factor = Math.max(0, (progress - 0.54) / 0.04);
-    } else if (progress > 0.88) {
-      factor = Math.max(0, 1 - (progress - 0.88) / 0.04);
+      const factor = Math.max(0, (progress - 0.54) / 0.04);
+      groupRef.current.position.y = (1 - factor) * -3.5;
+      const s = 0.94 + factor * 0.06;
+      groupRef.current.scale.set(s, s, s);
+    } else {
+      groupRef.current.position.y = 0;
+      groupRef.current.scale.set(1, 1, 1);
     }
-
-    groupRef.current.position.y = (1 - factor) * -3.5;
-    const s = 0.94 + factor * 0.06;
-    groupRef.current.scale.set(s, s, s);
   });
 
   // Determine active project focus from hover or camera waypoint journey
@@ -983,24 +982,56 @@ export const ZoneWorkshop: React.FC<ZoneWorkshopProps> = ({
     progress >= 0.69 && progress < 0.74 ? 'nota-kita' :
     progress >= 0.74 && progress < 0.79 ? 'malang-reproductive-center' :
     progress >= 0.79 && progress < 0.84 ? 'insan-medika' :
-    progress >= 0.84 && progress <= 0.88 ? 'hospital-virtual-app' :
+    progress >= 0.84 && progress <= 0.875 ? 'hospital-virtual-app' :
     null
   );
 
   return (
     <group ref={groupRef} position={[0, 0, 0]}>
       {/* ========================================================
-          GRAND AMPHITHEATER EXHIBITION WALL & GALLERY WALKWAY
+          GRAND AMPHITHEATER EXHIBITION WALL WITH CENTER EXIT PORTAL
          ======================================================== */}
-      {/* Background Architectural Travertine Amphitheater Wall */}
-      <mesh position={[0, 4.0, -33.8]} receiveShadow>
-        <boxGeometry args={[32, 9.0, 1.2]} />
+      {/* Left Travertine Amphitheater Wall Wing */}
+      <mesh position={[-9.6, 4.0, -33.8]} receiveShadow>
+        <boxGeometry args={[13.2, 9.0, 1.2]} />
         <meshStandardMaterial color="#161513" roughness={0.92} metalness={0.06} />
       </mesh>
 
-      {/* Bronze Reveal Lintel Trim along top of wall */}
-      <mesh position={[0, 8.55, -33.1]}>
-        <boxGeometry args={[32.4, 0.12, 0.2]} />
+      {/* Right Travertine Amphitheater Wall Wing */}
+      <mesh position={[9.6, 4.0, -33.8]} receiveShadow>
+        <boxGeometry args={[13.2, 9.0, 1.2]} />
+        <meshStandardMaterial color="#161513" roughness={0.92} metalness={0.06} />
+      </mesh>
+
+      {/* Portal Framing Columns in Dark Basalt */}
+      <mesh position={[-3.1, 4.0, -33.8]} castShadow receiveShadow>
+        <boxGeometry args={[0.5, 9.0, 1.4]} />
+        <meshStandardMaterial color="#1D1C19" roughness={0.9} metalness={0.1} />
+      </mesh>
+      <mesh position={[3.1, 4.0, -33.8]} castShadow receiveShadow>
+        <boxGeometry args={[0.5, 9.0, 1.4]} />
+        <meshStandardMaterial color="#1D1C19" roughness={0.9} metalness={0.1} />
+      </mesh>
+
+      {/* Monumental Portal Cross Lintel Overhead */}
+      <mesh position={[0, 7.8, -33.8]} castShadow receiveShadow>
+        <boxGeometry args={[6.8, 1.4, 1.5]} />
+        <meshStandardMaterial color="#E1D8CA" roughness={0.88} metalness={0.05} />
+      </mesh>
+
+      {/* Portal Inner Trim in Brushed Bronze */}
+      <mesh position={[0, 7.15, -33.1]}>
+        <boxGeometry args={[6.2, 0.08, 0.2]} />
+        <meshStandardMaterial color="#C58A5B" metalness={0.85} roughness={0.25} />
+      </mesh>
+
+      {/* Bronze Reveal Lintel Trim along left and right wall tops */}
+      <mesh position={[-9.6, 8.55, -33.1]}>
+        <boxGeometry args={[13.2, 0.12, 0.2]} />
+        <meshStandardMaterial color="#C58A5B" metalness={0.85} roughness={0.25} />
+      </mesh>
+      <mesh position={[9.6, 8.55, -33.1]}>
+        <boxGeometry args={[13.2, 0.12, 0.2]} />
         <meshStandardMaterial color="#C58A5B" metalness={0.85} roughness={0.25} />
       </mesh>
 

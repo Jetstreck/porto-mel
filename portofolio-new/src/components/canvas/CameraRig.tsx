@@ -107,26 +107,42 @@ const CAMERA_WAYPOINTS: CameraWaypoint[] = [
   // Waypoint 7: Hospital Virtual Website (Stage 04 — Exhibition 06)
   // Wide: Desktop telemedicine web display, digital signature tablet, queue token & plinth
   {
-    progress: 0.86,
+    progress: 0.85,
     pos: [4.7, 2.0, -20.7],
     look: [7.0, 0.75, -26.5],
     label: 'Ch04 W7: Installation 06 (Hospital Virtual Website)',
   },
-  // Waypoint 8: Archive Exit / Contact Transition (Stage 05 — Closing)
-  // Elevated glide through center exit portal toward the grand horizon of Chapter 05
+  // Waypoint 7b: Departure from Final Installation (Phase A)
+  // Pull backward and step left, revealing Hospital Virtual plinth and surrounding gallery promenade
   {
-    progress: 0.90,
-    pos: [0.0, 4.0, -32.0],
-    look: [0.0, 2.8, -46.0],
-    label: 'Ch04 W8: Archive Exit / Contact Transition',
+    progress: 0.885,
+    pos: [3.2, 2.15, -24.8],
+    look: [5.2, 0.95, -29.2],
+    label: 'Ch04 W7b: Leaving Final Installation & Gallery Promenade',
   },
-
-  // CHAPTER 05 — CONTACT / CONNECTION GATEWAY
+  // Waypoint 8: Gallery Exit Portal Alignment (Phase B)
+  // Align onto central gallery axis just before the grand exit portal
   {
-    progress: 0.98,
-    pos: [0.0, 5.8, -39.0],
-    look: [0.0, 3.2, -50.0],
-    label: 'Chapter 05: Grand Portal Horizon',
+    progress: 0.92,
+    pos: [0.0, 2.25, -31.8],
+    look: [0.0, 1.75, -42.5],
+    label: 'Ch04 W8: Gallery Exit Portal Alignment',
+  },
+  // Waypoint 9: Traversing Connecting Passage (Phase C & D)
+  // Gliding through the architectural corridor between the two environments
+  {
+    progress: 0.96,
+    pos: [0.0, 2.20, -37.2],
+    look: [0.0, 1.55, -46.5],
+    label: 'Chapter 05: Traversing Connecting Passage',
+  },
+  // Waypoint 10: The Connection Lounge Arrival & Panorama (Phase E)
+  // Settle into signature eye-level medium-wide architectural composition
+  {
+    progress: 1.00,
+    pos: [0.0, 2.15, -41.2],
+    look: [0.0, 1.45, -48.2],
+    label: 'Chapter 05: The Connection Lounge Panorama',
   },
 ];
 
@@ -185,8 +201,13 @@ function interpolateWaypoints(
   const scaleNext = (2 * span) / (span + spanNext);
 
   const calcSpline = (c0: number, c1: number, c2: number, c3: number): number => {
-    const m1 = (c2 - c0) * 0.5 * scalePrev;
-    const m2 = (c3 - c1) * 0.5 * scaleNext;
+    let m1 = (c2 - c0) * 0.5 * scalePrev;
+    let m2 = (c3 - c1) * 0.5 * scaleNext;
+    // Flat segment monotonicity clamping: if both endpoints are identical, prevent overshoot
+    if (c1 === c2) {
+      m1 = 0;
+      m2 = 0;
+    }
     return h00 * c1 + h10 * m1 + h01 * c2 + h11 * m2;
   };
 
