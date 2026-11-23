@@ -15,6 +15,20 @@ export const App: React.FC = () => {
   // GSAP ScrollTrigger Camera Journey Controller
   const [{ progress, activeChapter, mouse }, flyToChapter, flyToProgress] = useCameraJourney();
 
+  // Keep scroll locked at 0 during preloader initialization
+  React.useEffect(() => {
+    if (isLoading) {
+      window.scrollTo(0, 0);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      window.scrollTo(0, 0);
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isLoading]);
+
   return (
     <>
       {/* Paper grain subtle tactile overlay */}

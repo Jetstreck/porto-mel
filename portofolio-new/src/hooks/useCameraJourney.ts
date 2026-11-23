@@ -20,7 +20,19 @@ export function useCameraJourney(): [
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    // Master scroll trigger on the window / document
+    // 1. Enforce manual scroll restoration & reset scroll to top immediately
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+    ScrollTrigger.clearScrollMemory();
+
+    // Reset URL hash if present so browser doesn't anchor jump
+    if (window.location.hash) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+
+    // 2. Master scroll trigger on the window / document
     const trigger = ScrollTrigger.create({
       start: 0,
       end: 'max',
@@ -44,17 +56,27 @@ export function useCameraJourney(): [
       },
     });
 
+    // Ensure ScrollTrigger refreshes from top 0
+    ScrollTrigger.refresh();
+
     const onMouseMove = (e: MouseEvent) => {
       const x = (e.clientX / window.innerWidth) * 2 - 1;
       const y = -(e.clientY / window.innerHeight) * 2 + 1;
       setMouse({ x, y });
     };
 
+    const onPageShow = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+      ScrollTrigger.refresh();
+    };
+
     window.addEventListener('mousemove', onMouseMove, { passive: true });
+    window.addEventListener('pageshow', onPageShow);
 
     return () => {
       trigger.kill();
       window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('pageshow', onPageShow);
     };
   }, []);
 
