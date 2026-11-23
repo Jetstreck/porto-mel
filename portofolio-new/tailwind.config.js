@@ -16,7 +16,7 @@ export default {
       },
       fontFamily: {
         sans: ["'DM Sans'", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        display: ["'Space Grotesk'", "sans-serif"],
+        display: ["'Manrope'", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
         serif: ["'Instrument Serif'", "Georgia", "serif"],
         mono: ["'JetBrains Mono'", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },

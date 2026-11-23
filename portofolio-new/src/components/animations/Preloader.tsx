@@ -62,8 +62,8 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
 
       {/* Centerpiece: Percentage & Editorial Identity */}
       <div className="my-auto max-w-4xl">
-        <div className="font-mono text-xs text-[#A65338] tracking-widest uppercase mb-4">
-          [PORTFOLIO SYSTEM // INITIALIZATION]
+        <div className="text-xs font-semibold text-[#A65338] tracking-wider uppercase mb-4">
+          MELLINO &bull; DIGITAL PORTFOLIO
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-baseline gap-4 sm:gap-8">
@@ -73,11 +73,11 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
           </span>
 
           <div className="max-w-md">
-            <h1 className="text-xl sm:text-2xl font-serif italic text-[#E1D8CA] leading-snug">
+            <h1 className="text-xl sm:text-2xl font-display font-semibold text-[#F1ECE3] leading-snug">
               Building digital experiences with intention.
             </h1>
-            <p className="mt-2 text-xs font-mono text-[#F1ECE3]/60 uppercase tracking-wider">
-              Warm Brutalism & Fullstack Engineering
+            <p className="mt-2 text-xs font-sans text-[#B0A596] tracking-wider uppercase">
+              Fullstack Engineering &bull; Creative Technology
             </p>
           </div>
         </div>
@@ -92,13 +92,13 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
       </div>
 
       {/* Bottom Status & Diagnostic */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-[#F1ECE3]/15 font-mono text-xs text-[#F1ECE3]/60 gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-[#F1ECE3]/15 text-xs text-[#B0A596] gap-2 font-sans">
         <div className="flex items-center gap-2">
           <span className="inline-block w-1.5 h-1.5 bg-[#A65338] animate-ping" />
           <span className="text-[#F1ECE3] uppercase tracking-wider">{statusText}</span>
         </div>
-        <div className="text-[11px] tracking-widest uppercase">
-          [EDITION 2024–2025]
+        <div className="text-xs tracking-wider uppercase">
+          MALANG, INDONESIA
         </div>
       </div>
     </div>

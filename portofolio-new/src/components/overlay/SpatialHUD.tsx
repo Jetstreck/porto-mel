@@ -42,15 +42,13 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
   const [copied, setCopied] = useState(false);
   const [selectedCapability, setSelectedCapability] = useState<Capability>(CAPABILITIES[0]);
 
-  // Chapter 04 5-Stage & Project State Machine
+  // Chapter 04 State Machine
   const ch4Info = useMemo(() => {
-    // If hovered explicitly, take precedence
     if (hoveredProjectId) {
       const proj = SELECTED_PROJECTS.find((p) => p.id === hoveredProjectId) || null;
       return {
-        stageBadge: 'MANUAL INSPECTION',
         stageTitle: proj ? proj.title : 'Project Monograph',
-        stageDesc: proj ? proj.subtitle : 'Direct 3D Workstation Inspection',
+        stageDesc: proj ? proj.subtitle : 'Direct inspection',
         activeProject: proj,
         isOverview: false,
         isClosing: false,
@@ -59,16 +57,14 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
 
     if (progress < 0.59) {
       return {
-        stageBadge: 'ARRIVAL / ARCHIVE PANORAMA',
-        stageTitle: 'Establishing Overview: Six Commissions',
-        stageDesc: 'All six installations visible along the curved amphitheater plinths.',
+        stageTitle: 'Selected Commissions',
+        stageDesc: 'Six continuous gallery installations',
         activeProject: null,
         isOverview: true,
         isClosing: false,
       };
     } else if (progress < 0.64) {
       return {
-        stageBadge: 'EXHIBITION 01/06',
         stageTitle: SELECTED_PROJECTS[0].title,
         stageDesc: SELECTED_PROJECTS[0].subtitle,
         activeProject: SELECTED_PROJECTS[0],
@@ -77,7 +73,6 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       };
     } else if (progress < 0.69) {
       return {
-        stageBadge: 'EXHIBITION 02/06',
         stageTitle: SELECTED_PROJECTS[1].title,
         stageDesc: SELECTED_PROJECTS[1].subtitle,
         activeProject: SELECTED_PROJECTS[1],
@@ -86,7 +81,6 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       };
     } else if (progress < 0.74) {
       return {
-        stageBadge: 'EXHIBITION 03/06',
         stageTitle: SELECTED_PROJECTS[2].title,
         stageDesc: SELECTED_PROJECTS[2].subtitle,
         activeProject: SELECTED_PROJECTS[2],
@@ -95,7 +89,6 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       };
     } else if (progress < 0.79) {
       return {
-        stageBadge: 'EXHIBITION 04/06',
         stageTitle: SELECTED_PROJECTS[3].title,
         stageDesc: SELECTED_PROJECTS[3].subtitle,
         activeProject: SELECTED_PROJECTS[3],
@@ -104,7 +97,6 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       };
     } else if (progress < 0.84) {
       return {
-        stageBadge: 'EXHIBITION 05/06',
         stageTitle: SELECTED_PROJECTS[4].title,
         stageDesc: SELECTED_PROJECTS[4].subtitle,
         activeProject: SELECTED_PROJECTS[4],
@@ -113,7 +105,6 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       };
     } else if (progress < 0.875) {
       return {
-        stageBadge: 'EXHIBITION 06/06',
         stageTitle: SELECTED_PROJECTS[5].title,
         stageDesc: SELECTED_PROJECTS[5].subtitle,
         activeProject: SELECTED_PROJECTS[5],
@@ -122,9 +113,8 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       };
     } else {
       return {
-        stageBadge: 'ARCHIVE EXIT TRANSITION',
-        stageTitle: 'Leaving The Project Archive',
-        stageDesc: 'Gliding along the gallery walkway toward the Connection Lounge.',
+        stageTitle: 'Project Archive',
+        stageDesc: 'Moving to Connection Lounge',
         activeProject: null,
         isOverview: false,
         isClosing: true,
@@ -155,24 +145,22 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
     setTimeout(() => setCopied(false), 2400);
   };
 
+  // Clean editorial navigation without chapter numbers
   const chapters = [
-    { label: '01 ENTRANCE', index: 0 as const },
-    { label: '02 ABOUT', index: 1 as const },
-    { label: '03 EXPERTISE', index: 2 as const },
-    { label: '04 PROJECTS', index: 3 as const },
-    { label: '05 CONTACT', index: 4 as const },
+    { label: 'ENTRANCE', index: 0 as const },
+    { label: 'ABOUT', index: 1 as const },
+    { label: 'EXPERTISE', index: 2 as const },
+    { label: 'PROJECTS', index: 3 as const },
+    { label: 'CONTACT', index: 4 as const },
   ];
 
-  // =========================================================================
-  // STRICT CHAPTER ISOLATION & NON-OVERLAPPING OPACITY CURVES
-  // =========================================================================
+  // Chapter display conditions and non-overlapping opacity curves
   const isCh0 = progress <= 0.18;
   const isCh1 = progress > 0.16 && progress <= 0.38;
   const isCh2 = progress > 0.36 && progress <= 0.56;
   const isCh3 = progress > 0.54 && progress <= 0.915;
   const isCh4 = progress > 0.935;
 
-  // Smooth continuous cross-fading
   const op0 = progress <= 0.12 ? 1 : Math.max(0, 1 - (progress - 0.12) / 0.06);
   const op1 =
     progress < 0.18
@@ -197,32 +185,32 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       ? (progress - 0.54) / 0.04
       : progress <= 0.875
       ? 1
-      : Math.max(0, 1 - (progress - 0.875) / 0.03); // Fades completely by 0.905
-  // Chapter 05 HUD emerges only after the camera traverses the corridor and enters the lounge
+      : Math.max(0, 1 - (progress - 0.875) / 0.03);
   const op4 = progress < 0.94 ? 0 : Math.min(1, (progress - 0.94) / 0.04);
 
   return (
-    <div className="fixed inset-0 w-full h-full z-20 pointer-events-none select-none overflow-hidden">
+    <div className="fixed inset-0 w-full h-full z-20 pointer-events-none select-none overflow-hidden font-sans">
       {/* ========================================================
           GLOBAL NAVBAR: REFINED EDITORIAL NAVIGATION
-          No boxed toolbar, no pill buttons, pure architectural typography
+          Clean editorial labels (no numbers), subtle active underline,
+          no box cards or pill buttons.
          ======================================================== */}
       <header className="fixed top-0 left-0 w-full px-6 sm:px-12 lg:px-16 py-6 sm:py-8 pointer-events-auto flex items-center justify-between z-50">
-        {/* Left: Editorial Wordmark + Descriptor */}
+        {/* Left: Wordmark + Descriptor */}
         <button
           onClick={() => flyToChapter(0)}
-          className="group text-left flex items-baseline gap-3.5 focus:outline-none"
+          className="group text-left flex items-baseline gap-3 focus:outline-none"
         >
-          <span className="font-display font-black text-base sm:text-lg tracking-[0.16em] text-[#F1ECE3] uppercase group-hover:text-[#A65338] transition-colors">
+          <span className="font-display font-bold text-base sm:text-lg tracking-[0.12em] text-[#F1ECE3] uppercase group-hover:text-[#C47B60] transition-colors">
             MELLINO
           </span>
-          <span className="hidden sm:inline font-sans text-[11px] text-[#A65338] tracking-[0.2em] uppercase font-semibold">
-            / FULLSTACK DEVELOPER
+          <span className="hidden sm:inline font-sans text-xs text-[#B0A596] tracking-wider uppercase font-medium">
+            / Fullstack Developer
           </span>
         </button>
 
-        {/* Center: Exhibition Chapter Index */}
-        <nav className="hidden md:flex items-center gap-7 lg:gap-9 font-sans text-xs tracking-wider">
+        {/* Center: Editorial Chapter Navigation */}
+        <nav className="hidden md:flex items-center gap-7 lg:gap-9 text-xs tracking-wider font-medium">
           {chapters.map((ch) => {
             const isActive = activeChapter === ch.index;
             return (
@@ -232,17 +220,17 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                 className="group relative py-1 focus:outline-none"
               >
                 <span
-                  className={`transition-all duration-300 block ${
+                  className={`transition-all duration-200 block ${
                     isActive
-                      ? 'text-[#A65338] font-bold tracking-widest'
-                      : 'text-[#B0A596] hover:text-white'
+                      ? 'text-[#C47B60] font-semibold'
+                      : 'text-[#B0A596] hover:text-[#F1ECE3]'
                   }`}
                 >
                   {ch.label}
                 </span>
-                {/* Subtle animated hairline indicator */}
+                {/* Subtle active underline marker */}
                 <span
-                  className={`absolute -bottom-0.5 left-0 w-full h-[1.5px] bg-[#A65338] transition-all duration-300 origin-left ${
+                  className={`absolute -bottom-0.5 left-0 w-full h-[1.5px] bg-[#C47B60] transition-all duration-300 origin-left ${
                     isActive
                       ? 'opacity-100 scale-x-100'
                       : 'opacity-0 scale-x-0 group-hover:opacity-40 group-hover:scale-x-100'
@@ -253,10 +241,10 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
           })}
         </nav>
 
-        {/* Right: Live Geographic Status & Editorial Inquire Link */}
-        <div className="flex items-center gap-5 sm:gap-7 font-sans text-xs">
-          <div className="hidden lg:flex items-center gap-2 text-[#B0A596] text-[11px]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#A65338]" />
+        {/* Right: Geographic Status & Inquire Action */}
+        <div className="flex items-center gap-5 sm:gap-7 text-xs">
+          <div className="hidden lg:flex items-center gap-2 text-[#B0A596]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C47B60]" />
             <span>MALANG, ID</span>
             <span className="text-[#F1ECE3]/20">/</span>
             <span className="text-[#D1C8BB]">{timeStr}</span>
@@ -264,7 +252,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
 
           <button
             onClick={() => flyToChapter(4)}
-            className="group relative flex items-center gap-1.5 font-sans font-semibold text-xs text-[#F1ECE3] hover:text-[#A65338] uppercase tracking-wider transition-colors"
+            className="group relative flex items-center gap-1.5 font-sans font-medium text-xs text-[#F1ECE3] hover:text-[#C47B60] uppercase tracking-wider transition-colors"
           >
             <span>INQUIRE</span>
             <span className="text-xs transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -275,17 +263,18 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
         </div>
       </header>
 
-      {/* Global Scroll Journey Hairline Progress Indicator */}
+      {/* Global Scroll Journey Progress Indicator */}
       <div className="fixed top-0 left-0 w-full h-[1.5px] bg-[#F1ECE3]/10 z-50">
         <div
-          className="h-full bg-[#A65338] transition-all duration-75 ease-out"
+          className="h-full bg-[#C47B60] transition-all duration-75 ease-out"
           style={{ width: `${progress * 100}%` }}
         />
       </div>
 
       {/* ========================================================
-          CHAPTER 01: THE ENTRANCE (HERO)
-          Composition: Asymmetrical left-aligned typography leaving right side open for 3D diorama
+          CHAPTER 01: ENTRANCE
+          Clean Manrope display headline, restrained typography,
+          free from arbitrary numbering or artificial tags.
          ======================================================== */}
       {isCh0 && (
         <div
@@ -296,22 +285,20 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             transform: `translate3d(0, ${(1 - op0) * -20}px, 0)`,
           }}
         >
-          {/* Section Eyebrow with hairline rule */}
-          <div className="flex items-center gap-3 font-mono text-xs text-[#A65338] font-bold tracking-widest uppercase">
-            <span>01 // THE ENTRANCE</span>
-            <span className="text-[#F1ECE3]/20">—</span>
-            <span className="text-[#E1D8CA]/60 font-normal tracking-wider">THE CREATIVE WORKSHOP</span>
+          {/* Eyebrow */}
+          <div className="flex items-center gap-3 text-xs text-[#C47B60] font-semibold tracking-wider uppercase">
+            <span>Creative Technologist &bull; Fullstack Developer</span>
           </div>
 
-          {/* Monumental Typographic Presentation */}
-          <div className="my-auto max-w-2xl space-y-5">
-            <h1 className="font-display font-black text-6xl sm:text-8xl lg:text-[116px] leading-[0.88] tracking-tighter text-[#F1ECE3] uppercase">
+          {/* Hero Presentation */}
+          <div className="my-auto max-w-2xl space-y-6">
+            <h1 className="font-display font-bold text-6xl sm:text-8xl lg:text-[108px] leading-[0.9] tracking-tight text-[#F1ECE3]">
               Mellino
             </h1>
 
-            <div className="space-y-3.5 pt-1">
-              <p className="text-2xl sm:text-4xl lg:text-[42px] font-serif italic text-[#E1D8CA] leading-snug">
-                &ldquo;Building digital experiences with intention.&rdquo;
+            <div className="space-y-4">
+              <p className="text-2xl sm:text-3xl lg:text-[36px] font-display font-semibold text-[#F1ECE3] leading-snug tracking-tight">
+                Building digital experiences with intention.
               </p>
               <p className="text-sm sm:text-base text-[#D1C8BB] font-sans leading-relaxed max-w-xl">
                 Fullstack developer exploring the intersection of modern software systems, tactile 3D environments, and intentional digital craft.
@@ -319,18 +306,18 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             </div>
           </div>
 
-          {/* Bottom Exhibition Direction Bar */}
-          <div className="flex items-center justify-between border-t border-[#F1ECE3]/15 pt-6 font-mono text-xs text-[#F1ECE3]/60">
+          {/* Bottom Navigation Cue */}
+          <div className="flex items-center justify-between border-t border-[#F1ECE3]/15 pt-6 text-xs text-[#B0A596]">
             <div className="flex items-center gap-3">
-              <span className="w-1.5 h-1.5 bg-[#A65338]" />
-              <span className="tracking-widest uppercase text-[11px]">SCROLL TO JOURNEY THROUGH 3D WORLD</span>
+              <span className="w-1.5 h-1.5 bg-[#C47B60]" />
+              <span className="tracking-wider uppercase text-[11px]">Scroll to journey through gallery</span>
             </div>
             <button
               onClick={() => flyToChapter(1)}
-              className="group flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase font-mono tracking-wider text-xs"
+              className="group flex items-center gap-2 text-[#F1ECE3] hover:text-[#C47B60] transition-colors uppercase tracking-wider text-xs font-medium"
             >
-              <span>Explore About 02</span>
-              <span className="text-sm transition-transform duration-200 group-hover:translate-x-0.5 group-hover:translate-y-0.5">
+              <span>Explore About</span>
+              <span className="text-sm transition-transform duration-200 group-hover:translate-y-0.5">
                 ↓
               </span>
             </button>
@@ -339,8 +326,9 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       )}
 
       {/* ========================================================
-          CHAPTER 02: ABOUT (THE MAKER'S EXHIBITION)
-          Composition: Asymmetrical left-dominant editorial biography & tabular metadata
+          CHAPTER 02: ABOUT
+          Bold Manrope headline, balanced editorial biography,
+          guaranteed contrast against 3D objects with subtle local gradient.
          ======================================================== */}
       {isCh1 && (
         <div
@@ -352,46 +340,36 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
           }}
         >
           {/* Eyebrow */}
-          <div className="flex items-center gap-3 font-mono text-xs text-[#A65338] font-bold tracking-widest uppercase">
-            <span>02 // THE MAKER&apos;S EXHIBITION</span>
-            <span className="text-[#F1ECE3]/20">—</span>
-            <span className="text-[#E1D8CA]/60 font-normal tracking-wider">CREATOR DOSSIER</span>
+          <div className="flex items-center gap-3 text-xs text-[#C47B60] font-semibold tracking-wider uppercase">
+            <span>Background &bull; Philosophy</span>
           </div>
 
-          {/* Left-focused editorial layout */}
-          <div className="my-auto max-w-xl space-y-6">
-            <div className="space-y-2">
-              <div className="font-mono text-[10px] tracking-[0.25em] text-[#A65338] uppercase font-bold">
-                PHILOSOPHY &amp; BACKGROUND
-              </div>
-              <h2 className="text-3xl sm:text-5xl lg:text-[52px] font-serif italic text-white leading-[1.08] tracking-tight">
-                From physical structures to software systems.
-              </h2>
-            </div>
+          {/* Left-dominant editorial biography with restrained backdrop protection */}
+          <div className="my-auto max-w-xl space-y-6 bg-gradient-to-r from-[#141311]/90 via-[#141311]/70 to-transparent p-6 sm:p-8 -ml-6 sm:-ml-8 rounded-sm backdrop-blur-[2px]">
+            <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-display font-bold text-[#F1ECE3] leading-[1.12] tracking-tight">
+              From physical structures to software systems.
+            </h2>
 
-            <div className="space-y-3 text-[#F1ECE3]/80 text-sm sm:text-base leading-relaxed font-sans">
+            <div className="space-y-4 text-[#D1C8BB] text-sm sm:text-base leading-relaxed font-sans">
               <p>
                 I&apos;m Mellino, a Fullstack Developer who views software architecture through the lens of structural engineering—combining structural integrity with human usability.
               </p>
               <p>
-                With a background in <span className="text-[#E1D8CA] font-medium">Pendidikan Teknik Bangunan</span>, my approach to code mirrors building design: load-bearing foundations, clean contracts, and expressive spatial experiences.
+                With a background in <span className="text-[#F1ECE3] font-medium">Pendidikan Teknik Bangunan</span>, my approach to code mirrors building design: load-bearing foundations, clean contracts, and expressive spatial experiences.
               </p>
             </div>
 
-            {/* Swiss Tabular Metadata Matrix (Pure Typography, No Box Cards) */}
-            <div className="pt-2 border-t border-[#F1ECE3]/15 space-y-2.5 font-mono text-xs">
+            {/* Clean Editorial Metadata (No arbitrary [01], [02] numbers) */}
+            <div className="pt-4 border-t border-[#F1ECE3]/15 space-y-3 font-sans text-xs sm:text-sm">
               {[
-                { idx: '01', label: 'DISCIPLINE', val: 'Fullstack Engineering & Creative Technology' },
-                { idx: '02', label: 'FOUNDATION', val: 'Pendidikan Teknik Bangunan (Structural Systems)' },
-                { idx: '03', label: 'METHODOLOGY', val: 'Rigor, Spatial Craft & Human Empathy' },
-                { idx: '04', label: 'LOCATION', val: 'Malang, East Java, Indonesia (07°58′S, 112°37′E)' },
+                { label: 'Discipline', val: 'Fullstack Engineering & Creative Technology' },
+                { label: 'Foundation', val: 'Pendidikan Teknik Bangunan (Structural Systems)' },
+                { label: 'Methodology', val: 'Rigor, Spatial Craft & Human Empathy' },
+                { label: 'Location', val: 'Malang, East Java, Indonesia' },
               ].map((row) => (
-                <div key={row.idx} className="flex items-baseline justify-between py-1.5 border-b border-[#F1ECE3]/10 gap-4">
-                  <div className="flex items-baseline gap-2.5 shrink-0">
-                    <span className="text-[#A65338] text-[10px] font-bold">[{row.idx}]</span>
-                    <span className="text-[#E1D8CA]/60 text-[11px] tracking-wider uppercase">{row.label}</span>
-                  </div>
-                  <span className="text-white font-medium text-xs sm:text-sm text-right truncate">
+                <div key={row.label} className="flex items-baseline justify-between py-1.5 border-b border-[#F1ECE3]/10 gap-4">
+                  <span className="text-[#B0A596] font-medium text-xs shrink-0">{row.label}</span>
+                  <span className="text-[#F1ECE3] font-medium text-right truncate">
                     {row.val}
                   </span>
                 </div>
@@ -399,14 +377,14 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-[#F1ECE3]/15 pt-6 font-mono text-xs text-[#F1ECE3]/60">
-            <span>MALANG, EAST JAVA // INDONESIA</span>
+          <div className="flex items-center justify-between border-t border-[#F1ECE3]/15 pt-6 text-xs text-[#B0A596]">
+            <span>Malang, East Java, Indonesia</span>
             <button
               onClick={() => flyToChapter(2)}
-              className="group flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase font-mono tracking-wider text-xs"
+              className="group flex items-center gap-2 text-[#F1ECE3] hover:text-[#C47B60] transition-colors uppercase tracking-wider text-xs font-medium"
             >
-              <span>Proceed to Expertise 03</span>
-              <span className="text-sm transition-transform duration-200 group-hover:translate-x-0.5 group-hover:translate-y-0.5">
+              <span>Proceed to Expertise</span>
+              <span className="text-sm transition-transform duration-200 group-hover:translate-y-0.5">
                 ↓
               </span>
             </button>
@@ -415,9 +393,9 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       )}
 
       {/* ========================================================
-          CHAPTER 03: EXPERTISE (THE ENGINEERING LAB)
-          Composition: Right-aligned Architectural Technical Specimen Sheet
-          Zero generic boxes; inline typographic technology architecture
+          CHAPTER 03: EXPERTISE
+          Natural presentation of technical capabilities.
+          Zero artificial numbers, no "4 CORE DISCIPLINES" badge.
          ======================================================== */}
       {isCh2 && (
         <div
@@ -429,41 +407,34 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
           }}
         >
           {/* Section Header */}
-          <div className="flex items-center justify-between border-b border-[#F1ECE3]/15 pb-3 font-mono text-xs">
-            <div className="flex items-center gap-3">
-              <span className="text-[#A65338] font-bold tracking-widest uppercase">
-                03 // THE ENGINEERING LAB
-              </span>
-              <span className="text-[#F1ECE3]/20">—</span>
-              <span className="text-[#E1D8CA]/60 tracking-wider">TECHNICAL SPECIFICATIONS</span>
-            </div>
-            <span className="text-[#E1D8CA]/60 tracking-wider hidden sm:inline">
-              4 CORE DISCIPLINES &bull; INTERFACE TO INFRASTRUCTURE
+          <div className="flex items-center justify-between border-b border-[#F1ECE3]/15 pb-3 text-xs">
+            <span className="text-[#C47B60] font-semibold tracking-wider uppercase">
+              Engineering Architecture
+            </span>
+            <span className="text-[#B0A596] tracking-wider hidden sm:inline">
+              Interface to Infrastructure
             </span>
           </div>
 
-          {/* Right-aligned architectural specimen content */}
+          {/* Right-aligned Technical Specification */}
           <div className="my-auto flex justify-end">
-            <div className="w-full max-w-xl space-y-6">
+            <div className="w-full max-w-xl space-y-6 bg-gradient-to-l from-[#141311]/90 via-[#141311]/70 to-transparent p-6 sm:p-8 -mr-6 sm:-mr-8 rounded-sm backdrop-blur-[2px]">
               <div>
-                <span className="font-mono text-[10px] text-[#A65338] uppercase font-bold tracking-[0.25em] block">
-                  TECHNICAL CRAFT &bull; ARCHITECTURE
-                </span>
-                <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight mt-1">
-                  EXPERTISE
+                <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-display font-bold text-[#F1ECE3] tracking-tight">
+                  Expertise
                 </h2>
-                <p className="text-base sm:text-lg text-[#E1D8CA]/90 font-serif italic mt-1 leading-snug">
+                <p className="text-sm sm:text-base text-[#D1C8BB] font-sans mt-1">
                   Disciplined engineering from interface to infrastructure.
                 </p>
               </div>
 
-              {/* Typographic Discipline Switcher (No Boxed Buttons) */}
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6 border-b border-[#F1ECE3]/15 pb-2 font-mono text-xs">
+              {/* Clean Discipline Switcher */}
+              <div className="flex flex-wrap items-center gap-5 sm:gap-7 border-b border-[#F1ECE3]/15 pb-2 text-xs font-medium">
                 {[
-                  { id: 'frontend-architecture', label: '01 FRONTEND' },
-                  { id: 'fullstack-systems', label: '02 BACKEND' },
-                  { id: 'system-integration', label: '03 INTEGRATION' },
-                  { id: 'tools-workflow', label: '04 WORKFLOW' },
+                  { id: 'frontend-architecture', label: 'Frontend' },
+                  { id: 'fullstack-systems', label: 'Backend' },
+                  { id: 'system-integration', label: 'System Integration' },
+                  { id: 'tools-workflow', label: 'Tools & Workflow' },
                 ].map((item) => {
                   const isSelected = selectedCapability.id === item.id;
                   return (
@@ -502,14 +473,14 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                       <span
                         className={`transition-all duration-200 tracking-wider text-xs ${
                           isSelected
-                            ? 'text-[#A65338] font-bold'
-                            : 'text-[#F1ECE3]/50 hover:text-white'
+                            ? 'text-[#C47B60] font-semibold'
+                            : 'text-[#B0A596] hover:text-[#F1ECE3]'
                         }`}
                       >
                         {item.label}
                       </span>
                       <span
-                        className={`absolute bottom-0 left-0 w-full h-[1.5px] bg-[#A65338] transition-all duration-300 origin-left ${
+                        className={`absolute bottom-0 left-0 w-full h-[1.5px] bg-[#C47B60] transition-all duration-300 origin-left ${
                           isSelected ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-40'
                         }`}
                       />
@@ -518,52 +489,47 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                 })}
               </div>
 
-              {/* Active Discipline Dossier Spec Sheet */}
+              {/* Active Discipline Spec */}
               <div className="space-y-4">
-                <div className="flex items-baseline justify-between gap-4">
-                  <h3 className="text-xl sm:text-2xl font-display font-bold text-white">
-                    {selectedCapability.name}
-                  </h3>
-                  <span className="font-mono text-xs text-[#A65338] font-bold shrink-0">
-                    SPEC // {selectedCapability.number}
-                  </span>
-                </div>
+                <h3 className="text-xl sm:text-2xl font-display font-bold text-[#F1ECE3]">
+                  {selectedCapability.name}
+                </h3>
 
-                <p className="text-xs sm:text-sm text-[#F1ECE3]/80 font-sans leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#D1C8BB] font-sans leading-relaxed">
                   {selectedCapability.description}
                 </p>
 
-                {/* Technology Architecture: Typographic Inline List (NO PILL CHIPS) */}
+                {/* Technologies List */}
                 <div className="pt-2 border-t border-[#F1ECE3]/10 space-y-1">
-                  <span className="text-[10px] font-mono text-[#A65338] uppercase font-bold tracking-widest block">
-                    TECHNOLOGY MATRIX
+                  <span className="text-xs text-[#C47B60] font-semibold tracking-wider uppercase block">
+                    Core Technologies
                   </span>
-                  <div className="font-mono text-xs text-[#E1D8CA] leading-relaxed tracking-wider">
-                    {selectedCapability.technologies.join('  /  ')}
+                  <div className="text-xs sm:text-sm text-[#F1ECE3] font-medium leading-relaxed">
+                    {selectedCapability.technologies.join('  ·  ')}
                   </div>
                 </div>
 
-                {/* Core Deliverables: Minimalist Typographic List */}
+                {/* Verified Deliverables */}
                 <div className="pt-2 border-t border-[#F1ECE3]/10 space-y-2">
-                  <span className="text-[10px] font-mono text-[#A65338] uppercase font-bold tracking-widest block">
-                    VERIFIED DELIVERABLES
+                  <span className="text-xs text-[#C47B60] font-semibold tracking-wider uppercase block">
+                    Key Deliverables
                   </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs font-mono text-[#F1ECE3]/85">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs text-[#D1C8BB]">
                     {selectedCapability.deliverables.map((del, dIdx) => (
                       <div key={dIdx} className="flex items-baseline gap-2">
-                        <span className="text-[#A65338] font-bold">—</span>
+                        <span className="text-[#C47B60] font-bold">—</span>
                         <span className="truncate">{del}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Architectural Benchmark Focus */}
-                <div className="pt-2 border-t border-[#F1ECE3]/10 flex items-baseline gap-2 font-mono text-xs">
-                  <span className="text-[#A65338] text-[10px] font-bold tracking-widest uppercase shrink-0">
-                    FOCUS:
+                {/* Architectural Focus */}
+                <div className="pt-2 border-t border-[#F1ECE3]/10 flex items-baseline gap-2 text-xs">
+                  <span className="text-[#B0A596] font-medium shrink-0">
+                    Focus:
                   </span>
-                  <span className="text-[#E1D8CA]/80 italic font-serif text-sm">
+                  <span className="text-[#D1C8BB] font-sans text-xs sm:text-sm">
                     {selectedCapability.architecturalFocus}
                   </span>
                 </div>
@@ -571,14 +537,14 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-[#F1ECE3]/15 pt-6 font-mono text-xs text-[#F1ECE3]/60">
-            <span>DISCIPLINED SYSTEMS &bull; SUB-SECOND LATENCY &bull; 60 FPS WEBGL</span>
+          <div className="flex items-center justify-between border-t border-[#F1ECE3]/15 pt-6 text-xs text-[#B0A596]">
+            <span>Sub-second latency &bull; 60 FPS WebGL</span>
             <button
               onClick={() => flyToChapter(3)}
-              className="group flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase font-mono tracking-wider text-xs"
+              className="group flex items-center gap-2 text-[#F1ECE3] hover:text-[#C47B60] transition-colors uppercase tracking-wider text-xs font-medium"
             >
-              <span>Proceed to Projects 04</span>
-              <span className="text-sm transition-transform duration-200 group-hover:translate-x-0.5 group-hover:translate-y-0.5">
+              <span>Proceed to Projects</span>
+              <span className="text-sm transition-transform duration-200 group-hover:translate-y-0.5">
                 ↓
               </span>
             </button>
@@ -587,8 +553,9 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       )}
 
       {/* ========================================================
-          CHAPTER 04: PROJECTS (THE PROJECT ARCHIVE)
-          Redesigned: Floating Editorial Monograph Callout + Exhibition Catalogue Index
+          CHAPTER 04: PROJECTS (PROJECT ARCHIVE)
+          Clean monograph callout and exhibition catalogue strip.
+          No artificial STAGE badges or redundant numbering.
          ======================================================== */}
       {isCh3 && (
         <div
@@ -602,15 +569,15 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
           {/* Top Curatorial Bar */}
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 border-b border-[#F1ECE3]/15 pb-4">
             <div>
-              <div className="font-mono text-xs text-[#A65338] font-bold tracking-widest uppercase">
-                04 // THE PROJECT ARCHIVE &bull; {ch4Info.stageBadge}
+              <div className="text-xs text-[#C47B60] font-semibold tracking-wider uppercase">
+                Exhibition Gallery
               </div>
-              <h2 className="mt-1 text-2xl sm:text-4xl font-display font-extrabold text-white tracking-tight">
-                {ch4Info.isOverview ? 'Selected Commissions.' : ch4Info.stageTitle}
+              <h2 className="mt-1 text-2xl sm:text-4xl font-display font-bold text-[#F1ECE3] tracking-tight">
+                {ch4Info.isOverview ? 'Selected Commissions' : ch4Info.stageTitle}
               </h2>
             </div>
-            <div className="font-mono text-xs text-[#E1D8CA]/70 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#A65338]" />
+            <div className="text-xs text-[#B0A596] flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C47B60]" />
               <span className="tracking-wider uppercase text-[11px]">{ch4Info.stageDesc}</span>
             </div>
           </div>
@@ -618,15 +585,12 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
           {/* Floating Editorial Monograph Callout Plate (Top Right) */}
           <div className="min-h-24 flex items-center justify-end pointer-events-none mt-2">
             {ch4Info.isOverview && (
-              <div className="max-w-md p-5 bg-[#181714]/85 backdrop-blur-md border border-[#F1ECE3]/15 shadow-xl space-y-1">
-                <div className="font-mono text-[10px] text-[#A65338] font-bold uppercase tracking-widest">
-                  STAGE 01 // ARRIVAL PANORAMA
-                </div>
-                <div className="font-display font-bold text-white text-base">
+              <div className="max-w-md p-5 bg-[#181714]/85 backdrop-blur-md border border-[#F1ECE3]/15 shadow-xl space-y-1.5">
+                <div className="font-display font-bold text-[#F1ECE3] text-base">
                   The Continuous Exhibition Amphitheater
                 </div>
-                <p className="font-mono text-xs text-[#E1D8CA]/70 leading-relaxed pt-1">
-                  All six installations are physically present along the curved gallery. Scroll forward to begin the continuous tour from 01 to 06.
+                <p className="text-xs text-[#D1C8BB] leading-relaxed font-sans">
+                  All six installations are physically present along the curved gallery. Scroll forward to begin the continuous tour.
                 </p>
               </div>
             )}
@@ -634,32 +598,30 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             {ch4Info.activeProject && (
               <div
                 onClick={() => onSelectProject(ch4Info.activeProject!)}
-                className="pointer-events-auto cursor-pointer max-w-lg p-5 sm:p-6 bg-[#181714]/90 backdrop-blur-md border border-[#A65338]/60 shadow-2xl transition-all hover:border-[#A65338] group space-y-3"
+                className="pointer-events-auto cursor-pointer max-w-lg p-5 sm:p-6 bg-[#181714]/90 backdrop-blur-md border border-[#C47B60]/50 shadow-2xl transition-all hover:border-[#C47B60] group space-y-3"
               >
-                <div className="flex items-center justify-between gap-3 font-mono text-[10px]">
-                  <div className="flex items-center gap-2 text-[#A65338] font-bold">
-                    <span>PROJECT / {ch4Info.activeProject.number}</span>
-                    <span className="text-[#F1ECE3]/30">&bull;</span>
-                    <span className="text-[#E1D8CA]/80 uppercase">{ch4Info.activeProject.category}</span>
+                <div className="flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2 text-[#C47B60] font-medium">
+                    <span className="uppercase tracking-wide">{ch4Info.activeProject.category}</span>
                   </div>
-                  <span className="text-[#F1ECE3]/50">{ch4Info.activeProject.year}</span>
+                  <span className="text-[#B0A596]">{ch4Info.activeProject.year}</span>
                 </div>
 
                 <div className="space-y-1">
-                  <h3 className="font-display font-extrabold text-white text-lg sm:text-xl group-hover:text-[#A65338] transition-colors">
+                  <h3 className="font-display font-bold text-[#F1ECE3] text-lg sm:text-xl group-hover:text-[#C47B60] transition-colors">
                     {ch4Info.activeProject.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#E1D8CA]/80 line-clamp-2 leading-relaxed font-sans">
+                  <p className="text-xs sm:text-sm text-[#D1C8BB] line-clamp-2 leading-relaxed font-sans">
                     {ch4Info.activeProject.description}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-[#F1ECE3]/10 flex items-center justify-between gap-3 font-mono text-xs">
-                  <div className="text-[10px] text-[#F1ECE3]/60 truncate">
-                    {ch4Info.activeProject.techStack.join('  /  ')}
+                <div className="pt-2 border-t border-[#F1ECE3]/10 flex items-center justify-between gap-3 text-xs">
+                  <div className="text-xs text-[#B0A596] truncate">
+                    {ch4Info.activeProject.techStack.join('  ·  ')}
                   </div>
-                  <div className="shrink-0 flex items-center gap-1.5 text-xs font-bold text-[#A65338] group-hover:translate-x-1 transition-transform">
-                    <span>VIEW CASE STUDY</span>
+                  <div className="shrink-0 flex items-center gap-1.5 text-xs font-semibold text-[#C47B60] group-hover:translate-x-1 transition-transform">
+                    <span>View Case Study</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </div>
                 </div>
@@ -667,24 +629,21 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             )}
 
             {ch4Info.isClosing && (
-              <div className="max-w-md p-5 bg-[#181714]/85 backdrop-blur-md border border-[#A65338] shadow-xl space-y-1">
-                <div className="font-mono text-[10px] text-[#A65338] font-bold uppercase tracking-widest">
-                  STAGE 05 // ARCHIVE EXIT
-                </div>
-                <div className="font-display font-bold text-white text-base">
+              <div className="max-w-md p-5 bg-[#181714]/85 backdrop-blur-md border border-[#C47B60] shadow-xl space-y-1.5">
+                <div className="font-display font-bold text-[#F1ECE3] text-base">
                   Leaving The Project Archive
                 </div>
-                <p className="font-mono text-xs text-[#E1D8CA]/70 leading-relaxed pt-1">
-                  Proceeding forward through the portal into Chapter 05 // The Connection Lounge.
+                <p className="text-xs text-[#D1C8BB] leading-relaxed font-sans">
+                  Proceeding forward through the portal into the Connection Lounge.
                 </p>
               </div>
             )}
           </div>
 
-          {/* Center viewport is 100% OPEN for the 3D installations */}
+          {/* Center viewport remains 100% OPEN for the 3D installations */}
           <div className="my-auto pointer-events-none" />
 
-          {/* Bottom Exhibition Index: Curated Horizontal Gallery Strip */}
+          {/* Bottom Exhibition Index */}
           <div className="space-y-4">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 border-y border-[#F1ECE3]/15 divide-y sm:divide-y-0 sm:divide-x divide-[#F1ECE3]/10 bg-[#161513]/80 backdrop-blur-md pointer-events-auto">
               {SELECTED_PROJECTS.map((proj, idx) => {
@@ -711,21 +670,18 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                   >
                     {/* Top Active Indicator Line */}
                     <span
-                      className={`absolute top-0 left-0 w-full h-[2px] bg-[#A65338] transition-all duration-200 ${
+                      className={`absolute top-0 left-0 w-full h-[2px] bg-[#C47B60] transition-all duration-200 ${
                         isCurrentActive || isHovered ? 'opacity-100' : 'opacity-0'
                       }`}
                     />
 
-                    <div className="flex items-baseline justify-between mb-1">
-                      <span className="font-mono text-[10px] text-[#A65338] font-bold">
-                        {proj.number}
-                      </span>
-                      <span className="font-mono text-[9px] text-[#F1ECE3]/40 group-hover:text-[#F1ECE3]/80 transition-colors uppercase">
+                    <div className="mb-1">
+                      <span className="font-sans text-[11px] text-[#B0A596] group-hover:text-[#F1ECE3] transition-colors uppercase tracking-wider block truncate">
                         {proj.category.split('/')[0]}
                       </span>
                     </div>
 
-                    <div className="font-display font-bold text-xs sm:text-sm text-white truncate">
+                    <div className="font-display font-semibold text-xs sm:text-sm text-[#F1ECE3] truncate">
                       {proj.title.split('—')[0]}
                     </div>
                   </button>
@@ -733,14 +689,14 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
               })}
             </div>
 
-            <div className="flex items-center justify-between border-t border-[#F1ECE3]/15 pt-4 font-mono text-xs text-[#F1ECE3]/60">
-              <span>06 VERIFIED CASE STUDIES &bull; DESKTOP 16:10 WEB EXPERIENCES</span>
+            <div className="flex items-center justify-between border-t border-[#F1ECE3]/15 pt-4 text-xs text-[#B0A596]">
+              <span>Six verified case studies &bull; Desktop web experiences</span>
               <button
                 onClick={() => flyToChapter(4)}
-                className="group flex items-center gap-2 text-white hover:text-[#A65338] transition-colors uppercase pointer-events-auto font-mono text-xs"
+                className="group flex items-center gap-2 text-[#F1ECE3] hover:text-[#C47B60] transition-colors uppercase pointer-events-auto text-xs font-medium tracking-wide"
               >
-                <span>Proceed to Contact 05</span>
-                <span className="text-sm transition-transform duration-200 group-hover:translate-x-0.5 group-hover:translate-y-0.5">
+                <span>Proceed to Contact</span>
+                <span className="text-sm transition-transform duration-200 group-hover:translate-y-0.5">
                   ↓
                 </span>
               </button>
@@ -750,8 +706,9 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       )}
 
       {/* ========================================================
-          CHAPTER 05: THE CONNECTION LOUNGE (CONTACT)
-          Composition: Architectural Editorial Two-Column Directory & Signature Footer
+          CHAPTER 05: CONTACT (CONNECTION LOUNGE)
+          Clean architectural directory, direct channels,
+          no decorative badges or numbered section counters.
          ======================================================== */}
       {isCh4 && (
         <div
@@ -764,95 +721,82 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
         >
           {/* Eyebrow & Status Header */}
           <div className="flex items-center justify-between border-b border-[#F1ECE3]/15 pb-4">
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-xs text-[#A65338] font-bold tracking-widest uppercase">
-                05 // THE CONNECTION LOUNGE
-              </span>
-              <span className="text-[#F1ECE3]/20">—</span>
-              <span className="font-mono text-xs text-[#E1D8CA]/70 tracking-wider uppercase">
-                COMMISSION INQUIRIES
-              </span>
-            </div>
+            <span className="text-xs text-[#C47B60] font-semibold tracking-wider uppercase">
+              Get In Touch
+            </span>
 
-            <div className="hidden sm:flex items-center gap-2 font-mono text-xs text-[#22C55E]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
-              <span className="tracking-wider uppercase text-[11px] font-semibold">
-                AVAILABLE FOR COMMISSIONS
+            <div className="hidden sm:flex items-center gap-2 text-xs text-[#22C55E]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
+              <span className="tracking-wide uppercase text-[11px] font-medium">
+                Available for select commissions
               </span>
             </div>
           </div>
 
-          {/* Balanced Two-Column Architectural Layout */}
+          {/* Two-Column Editorial Layout */}
           <div className="my-auto py-6 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start pointer-events-auto">
             
-            {/* LEFT COLUMN: Narrative, Identity Spec Table & Primary CTA */}
+            {/* LEFT COLUMN: Narrative & Primary CTA */}
             <div className="lg:col-span-7 space-y-6">
               <div className="space-y-3">
-                <h2 className="text-3xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-white leading-[1.02]">
+                <h2 className="text-3xl sm:text-5xl lg:text-6xl font-display font-bold tracking-tight text-[#F1ECE3] leading-[1.08]">
                   Have an idea? Let&apos;s build something meaningful.
                 </h2>
-                <p className="text-base sm:text-lg font-serif italic text-[#E1D8CA]/90 leading-relaxed max-w-xl">
-                  &ldquo;I&apos;m always open to discussing new projects, creative collaborations, and opportunities to build meaningful digital experiences.&rdquo;
+                <p className="text-sm sm:text-base text-[#D1C8BB] leading-relaxed max-w-xl font-sans">
+                  I&apos;m always open to discussing new projects, creative collaborations, and opportunities to build thoughtful digital experiences.
                 </p>
               </div>
 
-              {/* Swiss Tabular Specifications (No Cards) */}
-              <div className="border-y border-[#F1ECE3]/15 divide-y divide-[#F1ECE3]/10 font-mono text-xs">
+              {/* Clean Editorial Metadata Table */}
+              <div className="border-y border-[#F1ECE3]/15 divide-y divide-[#F1ECE3]/10 text-xs sm:text-sm">
                 {[
-                  { label: 'CREATOR', val: 'Mellino' },
-                  { label: 'ROLE', val: 'Fullstack Developer & Creative Technologist' },
-                  { label: 'ORIGIN', val: 'Indonesia (UTC+7 / WIB)' },
-                  { label: 'STATUS', val: 'Open for Select Commissions' },
+                  { label: 'Creator', val: 'Mellino' },
+                  { label: 'Role', val: 'Fullstack Developer & Creative Technologist' },
+                  { label: 'Origin', val: 'Indonesia (UTC+7 / WIB)' },
+                  { label: 'Availability', val: 'Open for Select Commissions' },
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-baseline justify-between py-2">
-                    <span className="text-[#A65338] text-[10px] font-bold tracking-widest uppercase">
+                  <div key={idx} className="flex items-baseline justify-between py-2.5">
+                    <span className="text-[#B0A596] text-xs font-medium tracking-wide">
                       {item.label}
                     </span>
-                    <span className="text-white text-right font-medium">
+                    <span className="text-[#F1ECE3] text-right font-medium">
                       {item.val}
                     </span>
                   </div>
                 ))}
               </div>
 
-              {/* Primary Call to Action Statement */}
+              {/* Primary Call to Action */}
               <div className="pt-2 space-y-3">
-                <span className="font-mono text-xs uppercase text-[#A65338] font-bold tracking-widest block">
-                  LET&apos;S CREATE WHAT&apos;S NEXT.
-                </span>
-                <p className="text-sm text-[#F1ECE3]/80 leading-relaxed max-w-xl">
-                  Have an ambitious project, an inquiry, or an opportunity? I&apos;d love to hear about it.
-                </p>
-
                 <div className="pt-1">
                   <a
                     href={`mailto:${PERSONAL_INFO.email}`}
-                    className="group inline-flex items-center gap-3 font-mono text-sm uppercase font-bold text-white tracking-wider relative pb-1 focus:outline-none"
+                    className="group inline-flex items-center gap-3 text-sm font-semibold text-[#F1ECE3] hover:text-[#C47B60] tracking-wide relative pb-1 focus:outline-none transition-colors"
                   >
-                    <Mail className="w-4 h-4 text-[#A65338]" />
-                    <span className="group-hover:text-[#A65338] transition-colors">START A CONVERSATION</span>
+                    <Mail className="w-4 h-4 text-[#C47B60]" />
+                    <span>START A CONVERSATION</span>
                     <span className="text-sm transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1">
                       ↗
                     </span>
-                    <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#A65338] transition-all origin-left" />
+                    <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#C47B60] transition-all origin-left" />
                   </a>
                 </div>
               </div>
             </div>
 
-            {/* RIGHT COLUMN: 3 Architectural Channel Entries (Editorial Directory) */}
+            {/* RIGHT COLUMN: Direct Communication Channels */}
             <div className="lg:col-span-5 border-t lg:border-t-0 border-[#F1ECE3]/15 divide-y divide-[#F1ECE3]/15">
               
-              {/* Channel 01: LinkedIn */}
+              {/* Channel: LinkedIn */}
               <div className="py-5 space-y-1.5 group">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] text-[#A65338] font-bold tracking-widest uppercase">
-                    01 // PROFESSIONAL NETWORK
+                  <span className="text-xs text-[#B0A596] font-medium tracking-wide">
+                    Professional Network
                   </span>
-                  <LinkedinIcon className="w-4 h-4 text-[#E1D8CA]/50 group-hover:text-[#A65338] transition-colors" />
+                  <LinkedinIcon className="w-4 h-4 text-[#B0A596] group-hover:text-[#C47B60] transition-colors" />
                 </div>
-                <h3 className="font-display font-bold text-lg text-white">LinkedIn</h3>
-                <p className="font-mono text-xs text-[#F1ECE3]/60 leading-relaxed">
+                <h3 className="font-display font-semibold text-lg text-[#F1ECE3]">LinkedIn</h3>
+                <p className="text-xs text-[#D1C8BB] leading-relaxed">
                   Professional monograph, career journey, and direct industry network.
                 </p>
                 <div className="pt-1">
@@ -860,7 +804,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                     href={PERSONAL_INFO.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-[#F1ECE3] hover:text-[#A65338] uppercase tracking-wider transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#F1ECE3] hover:text-[#C47B60] uppercase tracking-wider transition-colors"
                   >
                     <span>Connect on LinkedIn</span>
                     <span className="text-xs">↗</span>
@@ -868,16 +812,16 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                 </div>
               </div>
 
-              {/* Channel 02: GitHub */}
+              {/* Channel: GitHub */}
               <div className="py-5 space-y-1.5 group">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] text-[#A65338] font-bold tracking-widest uppercase">
-                    02 // SOURCE CODE & CRAFT
+                  <span className="text-xs text-[#B0A596] font-medium tracking-wide">
+                    Source Code &amp; Craft
                   </span>
-                  <GithubIcon className="w-4 h-4 text-[#E1D8CA]/50 group-hover:text-[#A65338] transition-colors" />
+                  <GithubIcon className="w-4 h-4 text-[#B0A596] group-hover:text-[#C47B60] transition-colors" />
                 </div>
-                <h3 className="font-display font-bold text-lg text-white">GitHub</h3>
-                <p className="font-mono text-xs text-[#F1ECE3]/60 leading-relaxed">
+                <h3 className="font-display font-semibold text-lg text-[#F1ECE3]">GitHub</h3>
+                <p className="text-xs text-[#D1C8BB] leading-relaxed">
                   Production repositories, architecture experiments, and commit logs.
                 </p>
                 <div className="pt-1">
@@ -885,7 +829,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                     href={PERSONAL_INFO.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-[#F1ECE3] hover:text-[#A65338] uppercase tracking-wider transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#F1ECE3] hover:text-[#C47B60] uppercase tracking-wider transition-colors"
                   >
                     <span>Explore GitHub</span>
                     <span className="text-xs">↗</span>
@@ -893,22 +837,22 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                 </div>
               </div>
 
-              {/* Channel 03: Direct Email */}
+              {/* Channel: Direct Email */}
               <div className="py-5 space-y-1.5 group">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] text-[#A65338] font-bold tracking-widest uppercase">
-                    03 // DIRECT TRANSMISSION
+                  <span className="text-xs text-[#B0A596] font-medium tracking-wide">
+                    Direct Transmission
                   </span>
-                  <Mail className="w-4 h-4 text-[#E1D8CA]/50 group-hover:text-[#A65338] transition-colors" />
+                  <Mail className="w-4 h-4 text-[#B0A596] group-hover:text-[#C47B60] transition-colors" />
                 </div>
-                <h3 className="font-display font-bold text-lg text-white">Direct Correspondence</h3>
-                <div className="font-mono text-xs text-[#E1D8CA] py-1 select-all break-all">
+                <h3 className="font-display font-semibold text-lg text-[#F1ECE3]">Direct Correspondence</h3>
+                <div className="text-xs text-[#D1C8BB] py-1 select-all break-all font-mono">
                   {PERSONAL_INFO.email}
                 </div>
                 <div className="flex items-center gap-4 pt-1">
                   <a
                     href={`mailto:${PERSONAL_INFO.email}`}
-                    className="inline-flex items-center gap-1 font-mono text-xs uppercase font-bold text-white hover:text-[#A65338] transition-colors"
+                    className="inline-flex items-center gap-1 text-xs uppercase font-semibold text-[#F1ECE3] hover:text-[#C47B60] transition-colors"
                   >
                     <span>Send Mail</span>
                     <span className="text-xs">↗</span>
@@ -916,12 +860,12 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                   <span className="text-[#F1ECE3]/20">/</span>
                   <button
                     onClick={handleCopyEmail}
-                    className="inline-flex items-center gap-1.5 font-mono text-xs uppercase text-[#E1D8CA]/80 hover:text-white transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs uppercase text-[#D1C8BB] hover:text-[#F1ECE3] transition-colors"
                   >
                     {copied ? (
                       <>
                         <Check className="w-3.5 h-3.5 text-[#22C55E]" />
-                        <span className="text-[#22C55E] font-bold">Copied</span>
+                        <span className="text-[#22C55E] font-medium">Copied</span>
                       </>
                     ) : (
                       <>
@@ -936,29 +880,29 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             </div>
           </div>
 
-          {/* Signature Architectural Footer */}
-          <div className="flex flex-col sm:flex-row items-center justify-between border-t border-[#F1ECE3]/15 pt-5 gap-4 font-mono text-xs text-[#F1ECE3]/60 pointer-events-auto">
+          {/* Signature Footer */}
+          <div className="flex flex-col sm:flex-row items-center justify-between border-t border-[#F1ECE3]/15 pt-5 gap-4 text-xs text-[#B0A596] pointer-events-auto">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-center sm:text-left">
-              <span className="font-bold text-white tracking-wider">MELLINO</span>
+              <span className="font-semibold text-[#F1ECE3] tracking-wider">MELLINO</span>
               <span className="text-[#F1ECE3]/30">•</span>
               <span className="tracking-wide">FULLSTACK DEVELOPER</span>
               <span className="text-[#F1ECE3]/30 hidden md:inline">•</span>
-              <span className="text-[#E1D8CA]/60 hidden md:inline">&ldquo;Designed and developed with intention.&rdquo;</span>
+              <span className="text-[#D1C8BB] hidden md:inline">Designed and developed with intention.</span>
             </div>
 
             <div className="flex items-center gap-6">
-              <div className="hidden lg:flex items-center gap-2 text-[#F1ECE3]/40 text-[11px]">
+              <div className="hidden lg:flex items-center gap-2 text-[#B0A596] text-[11px]">
                 <span>MALANG, INDONESIA</span>
                 <span>({timeStr})</span>
               </div>
 
-              <div className="text-[#F1ECE3]/40">
+              <div className="text-[#B0A596]">
                 © {CURRENT_YEAR} MELLINO
               </div>
 
               <button
                 onClick={() => flyToChapter(0)}
-                className="group flex items-center gap-1.5 text-white hover:text-[#A65338] transition-colors uppercase font-bold text-xs pointer-events-auto"
+                className="group flex items-center gap-1.5 text-[#F1ECE3] hover:text-[#C47B60] transition-colors uppercase font-medium text-xs pointer-events-auto"
               >
                 <span>Return to Entrance</span>
                 <ArrowUp className="w-3.5 h-3.5 group-hover:-translate-y-0.5 transition-transform" />
