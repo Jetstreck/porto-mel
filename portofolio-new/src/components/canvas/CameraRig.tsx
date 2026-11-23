@@ -5,6 +5,7 @@ import * as THREE from 'three';
 interface CameraRigProps {
   progress: number;
   mouse: { x: number; y: number };
+  introProgress?: number;
 }
 
 export interface CameraWaypoint {
@@ -226,10 +227,10 @@ function interpolateWaypoints(
   return { pos, look };
 }
 
-export const CameraRig: React.FC<CameraRigProps> = ({ progress, mouse }) => {
+export const CameraRig: React.FC<CameraRigProps> = ({ progress, mouse, introProgress = 1.0 }) => {
   const { camera } = useThree();
-  const currentPos = useRef(new THREE.Vector3(-1.2, 2.2, 11.0));
-  const currentLookAt = useRef(new THREE.Vector3(0.8, 1.2, 0));
+  const currentPos = useRef(new THREE.Vector3(-0.6, 2.6, 13.5));
+  const currentLookAt = useRef(new THREE.Vector3(0.4, 1.2, 0));
 
   useFrame((_, delta) => {
     // Clamp progress between 0 and 1
@@ -240,6 +241,17 @@ export const CameraRig: React.FC<CameraRigProps> = ({ progress, mouse }) => {
       clampedProgress,
       CAMERA_WAYPOINTS
     );
+
+    // The Atelier Awakening Cinematic Camera Dolly
+    if (introProgress < 1.0) {
+      const t = Math.min(1.0, Math.max(0.0, introProgress));
+      // Ease-in-out curve for cinematic camera approach
+      const ease = t * t * (3 - 2 * t);
+      const introStartPos = new THREE.Vector3(-0.6, 2.6, 13.5);
+      const introStartLook = new THREE.Vector3(0.4, 1.2, 0.0);
+      targetPos.lerpVectors(introStartPos, targetPos, ease);
+      targetLook.lerpVectors(introStartLook, targetLook, ease);
+    }
 
     // Apply subtle pointer parallax (constrained so camera never clips into objects)
     targetPos.x += mouse.x * 0.35;

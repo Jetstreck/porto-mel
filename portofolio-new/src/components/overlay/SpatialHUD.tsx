@@ -13,6 +13,7 @@ interface SpatialHUDProps {
   setHoveredProjectId: (id: string | null) => void;
   flyToChapter: (chapter: 0 | 1 | 2 | 3 | 4) => void;
   flyToProgress?: (targetP: number) => void;
+  isIntroActive?: boolean;
 }
 
 const GithubIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
@@ -37,6 +38,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
   setHoveredProjectId,
   flyToChapter,
   flyToProgress,
+  isIntroActive = false,
 }) => {
   const [timeStr, setTimeStr] = useState('');
   const [copied, setCopied] = useState(false);
@@ -189,7 +191,11 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
   const op4 = progress < 0.94 ? 0 : Math.min(1, (progress - 0.94) / 0.04);
 
   return (
-    <div className="fixed inset-0 w-full h-full z-20 pointer-events-none select-none overflow-hidden font-sans">
+    <div
+      className={`fixed inset-0 w-full h-full z-20 pointer-events-none select-none overflow-hidden font-sans transition-opacity duration-700 ${
+        isIntroActive ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }`}
+    >
       {/* ========================================================
           GLOBAL NAVBAR: REFINED EDITORIAL NAVIGATION
           Clean editorial labels (no numbers), subtle active underline,
