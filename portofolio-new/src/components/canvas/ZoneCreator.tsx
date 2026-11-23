@@ -1,6 +1,8 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { AmbientParticles } from './AmbientParticles';
+import { createSeededRandom, type MoteItem } from './particleUtils';
 
 interface ZoneCreatorProps {
   progress: number;
@@ -627,6 +629,135 @@ const DimensionalLetter: React.FC<{
 };
 
 // =========================================================================
+// CHAPTER 02: THE MAKER'S EXHIBITION AMBIENT STAR PARTICLES
+// =========================================================================
+
+const CreatorAmbientParticles: React.FC<{ progress: number }> = ({ progress }) => {
+  const motesData = useMemo(() => {
+    const rand = createSeededRandom(2042);
+    const motes: MoteItem[] = [];
+    const count = 180;
+
+    const warmIvory = new THREE.Color('#FFF8EB');
+    const champagneWhite = new THREE.Color('#F4EFE6');
+    const goldenLinen = new THREE.Color('#E6DDD0');
+    const subtleRust = new THREE.Color('#C47B60');
+
+    for (let i = 0; i < count; i++) {
+      let bx = 0;
+      let by = 0;
+      let bz = 0;
+      let ampX = 0;
+      let ampY = 0;
+      let ampZ = 0;
+      let speedX = 0;
+      let speedY = 0;
+      let speedZ = 0;
+
+      if (i < 100) {
+        // Layer 1: Distant Background & High Travertine Colonnade (100 particles)
+        bx = (rand() - 0.5) * 15.0; // [-7.5, 7.5]
+        by = 0.4 + rand() * 5.4;    // [0.4, 5.8]
+        bz = -2.0 - rand() * 4.5;   // [-2.0, -6.5]
+        ampX = 0.02 + rand() * 0.035;
+        ampY = 0.035 + rand() * 0.06;
+        ampZ = 0.02 + rand() * 0.03;
+        speedX = 0.15 + rand() * 0.25;
+        speedY = 0.25 + rand() * 0.35;
+        speedZ = 0.15 + rand() * 0.25;
+      } else if (i < 160) {
+        // Layer 2: Midground Exhibition Atmosphere (60 particles)
+        const midIdx = i - 100;
+        if (midIdx < 24) {
+          // Around partition wall & identity letters
+          bx = (rand() - 0.5) * 6.0;
+          by = 1.2 + rand() * 3.0;
+          bz = -0.8 - rand() * 1.0;
+        } else if (midIdx < 38) {
+          // Left wing: Mindset monitor and telemetry console
+          bx = -1.2 - rand() * 2.8;
+          by = 0.8 + rand() * 2.4;
+          bz = -0.8 + rand() * 2.0;
+        } else if (midIdx < 52) {
+          // Right wing: Vitrine timeline plaques
+          bx = 1.2 + rand() * 2.8;
+          by = 0.8 + rand() * 2.4;
+          bz = -0.8 + rand() * 2.0;
+        } else {
+          // Plinth peripheral floor
+          const side = rand() > 0.5 ? 1 : -1;
+          bx = side * (1.6 + rand() * 2.2);
+          by = 0.3 + rand() * 1.2;
+          bz = 0.8 + rand() * 1.7;
+        }
+        ampX = 0.015 + rand() * 0.03;
+        ampY = 0.03 + rand() * 0.05;
+        ampZ = 0.015 + rand() * 0.025;
+        speedX = 0.2 + rand() * 0.3;
+        speedY = 0.3 + rand() * 0.4;
+        speedZ = 0.2 + rand() * 0.25;
+      } else {
+        // Layer 3: Foreground Depth (20 particles)
+        const side = rand() > 0.5 ? 1 : -1;
+        bx = side * (1.6 + rand() * 2.2);
+        by = 0.8 + rand() * 3.0;
+        bz = 1.6 + rand() * 2.0;
+        ampX = 0.02 + rand() * 0.035;
+        ampY = 0.04 + rand() * 0.055;
+        ampZ = 0.02 + rand() * 0.03;
+        speedX = 0.18 + rand() * 0.25;
+        speedY = 0.28 + rand() * 0.35;
+        speedZ = 0.18 + rand() * 0.22;
+      }
+
+      let c = warmIvory;
+      const colRand = rand();
+      if (colRand < 0.08) {
+        c = subtleRust;
+      } else if (colRand < 0.22) {
+        c = goldenLinen;
+      } else if (colRand < 0.48) {
+        c = champagneWhite;
+      }
+
+      motes.push({
+        baseX: bx,
+        baseY: by,
+        baseZ: bz,
+        ampX,
+        ampY,
+        ampZ,
+        speedX,
+        speedY,
+        speedZ,
+        phaseX: rand() * Math.PI * 2,
+        phaseY: rand() * Math.PI * 2,
+        phaseZ: rand() * Math.PI * 2,
+        twinkleSpeed: 0.8 + rand() * 1.6,
+        twinklePhase: rand() * Math.PI * 2,
+        baseR: c.r,
+        baseG: c.g,
+        baseB: c.b,
+      });
+    }
+
+    return motes;
+  }, []);
+
+  return (
+    <AmbientParticles
+      progress={progress}
+      activeRange={[0.12, 0.42]}
+      fadeInRange={[0.12, 0.2]}
+      fadeOutRange={[0.34, 0.42]}
+      motesData={motesData}
+      baseOpacity={0.74}
+      size={0.046}
+    />
+  );
+};
+
+// =========================================================================
 // MAIN ZONE CREATOR: THE MAKER'S EXHIBITION (4 CONNECTED ZONES)
 // =========================================================================
 
@@ -1180,6 +1311,11 @@ export const ZoneCreator: React.FC<ZoneCreatorProps> = ({ progress }) => {
 
       {/* Under-Plinth Warm Floor Ambient Glow */}
       <pointLight position={[0.0, -0.3, 0.6]} intensity={0.6} distance={4.0} color="#E1D8CA" />
+
+      {/* ========================================================
+          FULL-SCENE AMBIENT STAR PARTICLES (CHAPTER 02)
+         ======================================================== */}
+      <CreatorAmbientParticles progress={progress} />
     </group>
   );
 };

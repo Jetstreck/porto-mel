@@ -1,6 +1,8 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { AmbientParticles } from './AmbientParticles';
+import { createSeededRandom, type MoteItem } from './particleUtils';
 
 interface ZoneExpertiseProps {
   progress: number;
@@ -625,6 +627,129 @@ function generateWorkflowScreenTexture(): THREE.CanvasTexture {
 }
 
 // =========================================================================
+// CHAPTER 03: THE ENGINEERING LAB AMBIENT STAR PARTICLES
+// =========================================================================
+
+const ExpertiseAmbientParticles: React.FC<{ progress: number }> = ({ progress }) => {
+  const motesData = useMemo(() => {
+    const rand = createSeededRandom(3042);
+    const motes: MoteItem[] = [];
+    const count = 180;
+
+    const warmIvory = new THREE.Color('#FFF8EB');
+    const champagneWhite = new THREE.Color('#F4EFE6');
+    const goldenLinen = new THREE.Color('#E6DDD0');
+    const subtleRust = new THREE.Color('#C47B60');
+
+    for (let i = 0; i < count; i++) {
+      let bx = 0;
+      let by = 0;
+      let bz = 0;
+      let ampX = 0;
+      let ampY = 0;
+      let ampZ = 0;
+      let speedX = 0;
+      let speedY = 0;
+      let speedZ = 0;
+
+      if (i < 100) {
+        // Layer 1: Distant Background & High Engineering Lab Canopy (100 particles)
+        bx = (rand() - 0.5) * 16.0; // [-8.0, 8.0]
+        by = 0.5 + rand() * 5.7;    // [0.5, 6.2]
+        bz = -2.0 - rand() * 4.8;   // [-2.0, -6.8]
+        ampX = 0.02 + rand() * 0.035;
+        ampY = 0.035 + rand() * 0.06;
+        ampZ = 0.02 + rand() * 0.03;
+        speedX = 0.15 + rand() * 0.25;
+        speedY = 0.25 + rand() * 0.35;
+        speedZ = 0.15 + rand() * 0.25;
+      } else if (i < 160) {
+        // Layer 2: Midground Laboratory Consoles & Displays (60 particles)
+        const midIdx = i - 100;
+        if (midIdx < 20) {
+          // Backend servers & rack telemetry
+          bx = -1.2 - rand() * 2.8;
+          by = 1.0 + rand() * 2.8;
+          bz = -0.8 - rand() * 1.2;
+        } else if (midIdx < 40) {
+          // Frontend & system integration displays
+          bx = 1.0 + rand() * 3.0;
+          by = 1.0 + rand() * 2.8;
+          bz = -0.8 - rand() * 1.2;
+        } else {
+          // Central lab floor & circulation
+          bx = (rand() - 0.5) * 4.0;
+          by = 0.4 + rand() * 2.0;
+          bz = 0.2 + rand() * 1.8;
+        }
+        ampX = 0.015 + rand() * 0.03;
+        ampY = 0.03 + rand() * 0.05;
+        ampZ = 0.015 + rand() * 0.025;
+        speedX = 0.2 + rand() * 0.3;
+        speedY = 0.3 + rand() * 0.4;
+        speedZ = 0.2 + rand() * 0.25;
+      } else {
+        // Layer 3: Foreground Depth (20 particles)
+        const side = rand() > 0.5 ? 1 : -1;
+        bx = side * (1.8 + rand() * 2.2);
+        by = 0.8 + rand() * 3.2;
+        bz = 1.5 + rand() * 2.0;
+        ampX = 0.02 + rand() * 0.035;
+        ampY = 0.04 + rand() * 0.055;
+        ampZ = 0.02 + rand() * 0.03;
+        speedX = 0.18 + rand() * 0.25;
+        speedY = 0.28 + rand() * 0.35;
+        speedZ = 0.18 + rand() * 0.22;
+      }
+
+      let c = warmIvory;
+      const colRand = rand();
+      if (colRand < 0.09) {
+        c = subtleRust;
+      } else if (colRand < 0.24) {
+        c = goldenLinen;
+      } else if (colRand < 0.50) {
+        c = champagneWhite;
+      }
+
+      motes.push({
+        baseX: bx,
+        baseY: by,
+        baseZ: bz,
+        ampX,
+        ampY,
+        ampZ,
+        speedX,
+        speedY,
+        speedZ,
+        phaseX: rand() * Math.PI * 2,
+        phaseY: rand() * Math.PI * 2,
+        phaseZ: rand() * Math.PI * 2,
+        twinkleSpeed: 0.9 + rand() * 1.7,
+        twinklePhase: rand() * Math.PI * 2,
+        baseR: c.r,
+        baseG: c.g,
+        baseB: c.b,
+      });
+    }
+
+    return motes;
+  }, []);
+
+  return (
+    <AmbientParticles
+      progress={progress}
+      activeRange={[0.32, 0.62]}
+      fadeInRange={[0.32, 0.4]}
+      fadeOutRange={[0.54, 0.62]}
+      motesData={motesData}
+      baseOpacity={0.74}
+      size={0.046}
+    />
+  );
+};
+
+// =========================================================================
 // MAIN ZONE EXPERTISE: THE ENGINEERING LAB
 // =========================================================================
 
@@ -1194,6 +1319,11 @@ export const ZoneExpertise: React.FC<ZoneExpertiseProps> = ({ progress }) => {
 
       {/* Subtle Plinth Bottom Edge Glow */}
       <pointLight position={[0.0, -0.3, 0.5]} intensity={0.6} distance={4.0} color="#E1D8CA" />
+
+      {/* ========================================================
+          FULL-SCENE AMBIENT STAR PARTICLES (CHAPTER 03)
+         ======================================================== */}
+      <ExpertiseAmbientParticles progress={progress} />
     </group>
   );
 };

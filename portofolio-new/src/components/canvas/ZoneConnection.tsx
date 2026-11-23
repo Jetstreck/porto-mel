@@ -1,6 +1,8 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { AmbientParticles } from './AmbientParticles';
+import { createSeededRandom, type MoteItem } from './particleUtils';
 
 interface ZoneConnectionProps {
   progress: number;
@@ -285,17 +287,116 @@ function generateHorizonGradientTexture(): THREE.CanvasTexture {
 // CHAPTER 05: THE CONNECTION LOUNGE 3D ENVIRONMENT
 // =========================================================================
 
-function createSeededRandom(seed: number): () => number {
-  let s = seed;
-  return () => {
-    s = (s * 9301 + 49297) % 233280;
-    return s / 233280;
-  };
-}
+// =========================================================================
+// CHAPTER 05: THE CONNECTION LOUNGE AMBIENT STAR PARTICLES
+// =========================================================================
+
+const ConnectionAmbientParticles: React.FC<{ progress: number }> = ({ progress }) => {
+  const motesData = useMemo(() => {
+    const rand = createSeededRandom(5042);
+    const motes: MoteItem[] = [];
+    const count = 180; // 40 Corridor + 100 Lounge Panorama + 40 Seating & Artifacts
+
+    const warmIvory = new THREE.Color('#FFF8EB');
+    const champagneWhite = new THREE.Color('#F4EFE6');
+    const goldenLinen = new THREE.Color('#E6DDD0');
+    const subtleRust = new THREE.Color('#C47B60');
+
+    for (let i = 0; i < count; i++) {
+      let bx = 0;
+      let by = 0;
+      let bz = 0;
+      let ampX = 0;
+      let ampY = 0;
+      let ampZ = 0;
+      let speedX = 0;
+      let speedY = 0;
+      let speedZ = 0;
+
+      if (i < 40) {
+        // Connecting Corridor Passage (Phase C & D)
+        bx = (rand() - 0.5) * 5.6;    // [-2.8, 2.8]
+        by = 0.8 + rand() * 3.6;     // [0.8, 4.4]
+        bz = -34.0 - rand() * 6.0;   // [-34.0, -40.0]
+        ampX = 0.018 + rand() * 0.03;
+        ampY = 0.03 + rand() * 0.05;
+        ampZ = 0.018 + rand() * 0.025;
+        speedX = 0.16 + rand() * 0.25;
+        speedY = 0.25 + rand() * 0.35;
+        speedZ = 0.16 + rand() * 0.25;
+      } else if (i < 140) {
+        // Connection Lounge Panorama & Distant Horizon Portal (Phase E)
+        bx = (rand() - 0.5) * 17.0;  // [-8.5, 8.5]
+        by = 0.6 + rand() * 5.2;     // [0.6, 5.8]
+        bz = -41.0 - rand() * 11.0;  // [-41.0, -52.0]
+        ampX = 0.02 + rand() * 0.035;
+        ampY = 0.035 + rand() * 0.06;
+        ampZ = 0.02 + rand() * 0.03;
+        speedX = 0.14 + rand() * 0.22;
+        speedY = 0.22 + rand() * 0.32;
+        speedZ = 0.14 + rand() * 0.22;
+      } else {
+        // Midground around conversation seating, coffee table, and architectural glass
+        const side = rand() > 0.5 ? 1 : -1;
+        bx = side * (0.8 + rand() * 3.2);
+        by = 0.6 + rand() * 2.8;
+        bz = -42.5 - rand() * 5.5;
+        ampX = 0.015 + rand() * 0.03;
+        ampY = 0.03 + rand() * 0.05;
+        ampZ = 0.015 + rand() * 0.025;
+        speedX = 0.18 + rand() * 0.28;
+        speedY = 0.28 + rand() * 0.38;
+        speedZ = 0.18 + rand() * 0.24;
+      }
+
+      let c = warmIvory;
+      const colRand = rand();
+      if (colRand < 0.09) {
+        c = subtleRust;
+      } else if (colRand < 0.24) {
+        c = goldenLinen;
+      } else if (colRand < 0.50) {
+        c = champagneWhite;
+      }
+
+      motes.push({
+        baseX: bx,
+        baseY: by,
+        baseZ: bz,
+        ampX,
+        ampY,
+        ampZ,
+        speedX,
+        speedY,
+        speedZ,
+        phaseX: rand() * Math.PI * 2,
+        phaseY: rand() * Math.PI * 2,
+        phaseZ: rand() * Math.PI * 2,
+        twinkleSpeed: 0.75 + rand() * 1.5,
+        twinklePhase: rand() * Math.PI * 2,
+        baseR: c.r,
+        baseG: c.g,
+        baseB: c.b,
+      });
+    }
+
+    return motes;
+  }, []);
+
+  return (
+    <AmbientParticles
+      progress={progress}
+      activeRange={[0.84, 1.0]}
+      fadeInRange={[0.84, 0.88]}
+      motesData={motesData}
+      baseOpacity={0.76}
+      size={0.046}
+    />
+  );
+};
 
 export const ZoneConnection: React.FC<ZoneConnectionProps> = ({ progress }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const dustParticlesRef = useRef<THREE.Points>(null);
 
   // Generate memoized canvas textures
   const lintelSignTex = useMemo(() => generateLintelSignTexture(), []);
@@ -303,36 +404,7 @@ export const ZoneConnection: React.FC<ZoneConnectionProps> = ({ progress }) => {
   const monographTex = useMemo(() => generateMonographTexture(), []);
   const horizonTex = useMemo(() => generateHorizonGradientTexture(), []);
 
-  // Ambient Floating Dust Particles (38 motes in light cone) - Pure deterministic generation
-  const [particlesGeo, particleData] = useMemo(() => {
-    const rand = createSeededRandom(105);
-    const count = 38;
-    const positions = new Float32Array(count * 3);
-    const data = [];
-
-    for (let i = 0; i < count; i++) {
-      const x = (rand() - 0.5) * 8.0;
-      const y = 0.5 + rand() * 4.5;
-      const z = -44.0 - rand() * 6.0;
-
-      positions[i * 3] = x;
-      positions[i * 3 + 1] = y;
-      positions[i * 3 + 2] = z;
-
-      data.push({
-        origY: y,
-        origX: x,
-        speed: 0.3 + rand() * 0.5,
-        offset: rand() * Math.PI * 2,
-      });
-    }
-
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    return [geo, data];
-  }, []);
-
-  useFrame((state) => {
+  useFrame(() => {
     if (!groupRef.current) return;
 
     // Visibility lifecycle: active from 0.84 onwards
@@ -342,20 +414,6 @@ export const ZoneConnection: React.FC<ZoneConnectionProps> = ({ progress }) => {
     if (!isVisible) return;
 
     groupRef.current.position.set(0, 0, 0);
-
-    // Animate subtle floating dust particles
-    if (dustParticlesRef.current) {
-      const t = state.clock.getElapsedTime();
-      const posAttr = dustParticlesRef.current.geometry.attributes.position;
-      const arr = posAttr.array as Float32Array;
-
-      for (let i = 0; i < particleData.length; i++) {
-        const item = particleData[i];
-        arr[i * 3 + 1] = item.origY + Math.sin(t * item.speed + item.offset) * 0.25;
-        arr[i * 3] = item.origX + Math.cos(t * item.speed * 0.5 + item.offset) * 0.15;
-      }
-      posAttr.needsUpdate = true;
-    }
   });
 
   return (
@@ -903,18 +961,9 @@ export const ZoneConnection: React.FC<ZoneConnectionProps> = ({ progress }) => {
       </group>
 
       {/* ========================================================
-          6. AMBIENT ATMOSPHERIC DUST MOTES (FLOATING PARTICLES)
+          FULL-SCENE AMBIENT STAR PARTICLES (CHAPTER 05)
          ======================================================== */}
-      <points ref={dustParticlesRef} geometry={particlesGeo}>
-        <pointsMaterial
-          size={0.045}
-          color="#FFF2DC"
-          transparent
-          opacity={0.65}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-        />
-      </points>
+      <ConnectionAmbientParticles progress={progress} />
     </group>
   );
 };

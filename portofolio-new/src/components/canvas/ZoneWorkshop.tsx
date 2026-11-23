@@ -3,6 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { SELECTED_PROJECTS } from '../../data/portfolioData';
 import type { Project } from '../../types';
+import { AmbientParticles } from './AmbientParticles';
+import { createSeededRandom, type MoteItem } from './particleUtils';
 
 interface ZoneWorkshopProps {
   progress: number;
@@ -936,6 +938,135 @@ const DesktopWebsiteDisplay: React.FC<DesktopWebsiteDisplayProps> = ({
 };
 
 // =========================================================================
+// CHAPTER 04: THE PROJECT ARCHIVE AMBIENT STAR PARTICLES
+// =========================================================================
+
+const WorkshopArchiveParticles: React.FC<{ progress: number }> = ({ progress }) => {
+  const motesData = useMemo(() => {
+    const rand = createSeededRandom(4042);
+    const motes: MoteItem[] = [];
+    const count = 220; // 110 Gallery Airspace + 80 Installation Atmosphere + 30 Promenade/Exit
+
+    const warmIvory = new THREE.Color('#FFF8EB');
+    const champagneWhite = new THREE.Color('#F4EFE6');
+    const goldenLinen = new THREE.Color('#E6DDD0');
+    const subtleRust = new THREE.Color('#C47B60');
+
+    // 6 Installation anchor centers in world coordinates:
+    const anchors = [
+      { x: -6.8, z: -26.5 },
+      { x: -4.2, z: -28.6 },
+      { x: -1.45, z: -29.8 },
+      { x: 1.45, z: -29.8 },
+      { x: 4.2, z: -28.6 },
+      { x: 6.8, z: -26.5 },
+    ];
+
+    for (let i = 0; i < count; i++) {
+      let bx = 0;
+      let by = 0;
+      let bz = 0;
+      let ampX = 0;
+      let ampY = 0;
+      let ampZ = 0;
+      let speedX = 0;
+      let speedY = 0;
+      let speedZ = 0;
+
+      if (i < 110) {
+        // Layer 1: Grand Gallery Airspace & Upper Ceiling (110 particles)
+        bx = (rand() - 0.5) * 21.0;   // [-10.5, 10.5]
+        by = 1.2 + rand() * 6.0;      // [1.2, 7.2]
+        bz = -12.0 - rand() * 22.0;   // [-12.0, -34.0]
+        ampX = 0.02 + rand() * 0.035;
+        ampY = 0.035 + rand() * 0.06;
+        ampZ = 0.02 + rand() * 0.03;
+        speedX = 0.15 + rand() * 0.25;
+        speedY = 0.25 + rand() * 0.35;
+        speedZ = 0.15 + rand() * 0.25;
+      } else if (i < 190) {
+        // Layer 2: Surrounding the 6 Project Installations (80 particles)
+        const anchorIdx = (i - 110) % 6;
+        const anchor = anchors[anchorIdx];
+        const angle = rand() * Math.PI * 2;
+        const rad = 1.0 + rand() * 1.6;
+        bx = anchor.x + Math.cos(angle) * rad;
+        by = 0.6 + rand() * 2.8;
+        bz = anchor.z + Math.sin(angle) * rad;
+        ampX = 0.015 + rand() * 0.03;
+        ampY = 0.03 + rand() * 0.05;
+        ampZ = 0.015 + rand() * 0.025;
+        speedX = 0.2 + rand() * 0.3;
+        speedY = 0.3 + rand() * 0.4;
+        speedZ = 0.2 + rand() * 0.25;
+      } else {
+        // Layer 3: Promenade Walkways & Exit Portal Passage (30 particles)
+        if (i < 205) {
+          // Promenade Balcony Walkway
+          bx = (rand() - 0.5) * 16.0;
+          by = 1.0 + rand() * 3.5;
+          bz = -14.0 - rand() * 9.0;
+        } else {
+          // Exit Corridor Approach
+          bx = (rand() - 0.5) * 6.0;
+          by = 1.2 + rand() * 3.2;
+          bz = -30.0 - rand() * 4.5;
+        }
+        ampX = 0.02 + rand() * 0.035;
+        ampY = 0.04 + rand() * 0.055;
+        ampZ = 0.02 + rand() * 0.03;
+        speedX = 0.18 + rand() * 0.25;
+        speedY = 0.28 + rand() * 0.35;
+        speedZ = 0.18 + rand() * 0.22;
+      }
+
+      let c = warmIvory;
+      const colRand = rand();
+      if (colRand < 0.08) {
+        c = subtleRust;
+      } else if (colRand < 0.22) {
+        c = goldenLinen;
+      } else if (colRand < 0.48) {
+        c = champagneWhite;
+      }
+
+      motes.push({
+        baseX: bx,
+        baseY: by,
+        baseZ: bz,
+        ampX,
+        ampY,
+        ampZ,
+        speedX,
+        speedY,
+        speedZ,
+        phaseX: rand() * Math.PI * 2,
+        phaseY: rand() * Math.PI * 2,
+        phaseZ: rand() * Math.PI * 2,
+        twinkleSpeed: 0.8 + rand() * 1.6,
+        twinklePhase: rand() * Math.PI * 2,
+        baseR: c.r,
+        baseG: c.g,
+        baseB: c.b,
+      });
+    }
+
+    return motes;
+  }, []);
+
+  return (
+    <AmbientParticles
+      progress={progress}
+      activeRange={[0.54, 0.965]}
+      fadeInRange={[0.54, 0.58]}
+      motesData={motesData}
+      baseOpacity={0.74}
+      size={0.046}
+    />
+  );
+};
+
+// =========================================================================
 // MAIN ZONE WORKSHOP: 6 DESKTOP WEBSITE INSTALLATIONS IN AMPHITHEATER
 // =========================================================================
 
@@ -1608,6 +1739,11 @@ export const ZoneWorkshop: React.FC<ZoneWorkshopProps> = ({
 
       {/* Warm Ambient Gallery Ground Fill */}
       <pointLight position={[0, 4.0, -26.0]} intensity={1.2} color="#FFF5EA" distance={24} />
+
+      {/* ========================================================
+          FULL-SCENE AMBIENT STAR PARTICLES (CHAPTER 04)
+         ======================================================== */}
+      <WorkshopArchiveParticles progress={progress} />
     </group>
   );
 };
