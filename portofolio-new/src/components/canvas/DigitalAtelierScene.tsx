@@ -11,7 +11,6 @@ import type { Project } from '../../types';
 
 interface DigitalAtelierSceneProps {
   progress: number;
-  introProgress?: number;
   mouse: { x: number; y: number };
   onSelectProject: (project: Project) => void;
   hoveredProjectId: string | null;
@@ -20,7 +19,6 @@ interface DigitalAtelierSceneProps {
 
 export const DigitalAtelierScene: React.FC<DigitalAtelierSceneProps> = ({
   progress,
-  introProgress = 1.0,
   mouse,
   onSelectProject,
   hoveredProjectId,
@@ -37,18 +35,18 @@ export const DigitalAtelierScene: React.FC<DigitalAtelierSceneProps> = ({
           powerPreference: 'high-performance',
         }}
         camera={{
-          position: [-0.6, 2.6, 13.5],
+          position: [-1.2, 2.2, 11.0],
           fov: 40,
           near: 0.1,
           far: 110,
         }}
       >
         <Suspense fallback={null}>
-          <CameraRig progress={progress} mouse={mouse} introProgress={introProgress} />
-          <Atmosphere introProgress={introProgress} />
+          <CameraRig progress={progress} mouse={mouse} />
+          <Atmosphere />
 
           {/* Spatial Zone 01: The Entrance (active 0.0 - 0.22) */}
-          <ZoneEntrance progress={progress} introProgress={introProgress} />
+          <ZoneEntrance progress={progress} />
 
           {/* Spatial Zone 02: The Creator Colonnade (active 0.12 - 0.42) */}
           <ZoneCreator progress={progress} />

@@ -4,7 +4,6 @@ import * as THREE from 'three';
 
 interface ZoneEntranceProps {
   progress: number;
-  introProgress?: number;
 }
 
 // =========================================================================
@@ -189,7 +188,7 @@ function generateTabletTexture(): THREE.CanvasTexture {
 // ZONE ENTRANCE: THE CREATIVE WORKSHOP DIORAMA
 // =========================================================================
 
-export const ZoneEntrance: React.FC<ZoneEntranceProps> = ({ progress, introProgress = 1.0 }) => {
+export const ZoneEntrance: React.FC<ZoneEntranceProps> = ({ progress }) => {
   const groupRef = useRef<THREE.Group>(null);
   const chairRef = useRef<THREE.Group>(null);
   const lampLightRef = useRef<THREE.SpotLight>(null);
@@ -237,14 +236,9 @@ export const ZoneEntrance: React.FC<ZoneEntranceProps> = ({ progress, introProgr
       chairRef.current.rotation.y = 0.26 + Math.sin(t * 0.6) * 0.025;
     }
 
-    // Desk lamp awakening bloom & subtle gentle idle pulse
+    // Subtle gentle pulse on desk lamp intensity
     if (lampLightRef.current) {
-      if (introProgress < 0.25) {
-        lampLightRef.current.intensity = 0.0;
-      } else {
-        const lampAwakenFactor = Math.min(1.0, (introProgress - 0.25) / 0.45);
-        lampLightRef.current.intensity = lampAwakenFactor * (3.2 + Math.sin(t * 2.5) * 0.15);
-      }
+      lampLightRef.current.intensity = 3.2 + Math.sin(t * 2.5) * 0.15;
     }
   });
 

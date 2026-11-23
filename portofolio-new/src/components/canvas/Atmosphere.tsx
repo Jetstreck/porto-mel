@@ -15,31 +15,12 @@ for (let i = 0; i < PARTICLE_COUNT; i++) {
   PARTICLE_POSITIONS[i * 3 + 2] = -((i * 17) % 55);
 }
 
-interface AtmosphereProps {
-  introProgress?: number;
-}
-
-export const Atmosphere: React.FC<AtmosphereProps> = ({ introProgress = 1.0 }) => {
+export const Atmosphere: React.FC = () => {
   const pointsRef = useRef<THREE.Points>(null);
-  const dirLightRef = useRef<THREE.DirectionalLight>(null);
-  const ambientLightRef = useRef<THREE.AmbientLight>(null);
 
   useFrame((_, delta) => {
     if (pointsRef.current) {
       pointsRef.current.rotation.y += delta * 0.015;
-    }
-
-    // Dynamic light awakening based on introProgress
-    const t = Math.min(1.0, Math.max(0.0, introProgress));
-    // Scene A (0.0 - 0.25): dark silhouette with rim lighting
-    // Scene B (0.25 - 0.75): smooth awakening bloom to full daylight
-    const awakenFactor = t < 0.2 ? 0.1 : Math.min(1.0, (t - 0.2) / 0.6);
-
-    if (dirLightRef.current) {
-      dirLightRef.current.intensity = THREE.MathUtils.lerp(0.3, 2.4, awakenFactor);
-    }
-    if (ambientLightRef.current) {
-      ambientLightRef.current.intensity = THREE.MathUtils.lerp(0.12, 0.9, awakenFactor);
     }
   });
 
@@ -51,7 +32,6 @@ export const Atmosphere: React.FC<AtmosphereProps> = ({ introProgress = 1.0 }) =
 
       {/* Main Directional Architectural Sunlight */}
       <directionalLight
-        ref={dirLightRef}
         position={[14, 22, 12]}
         intensity={2.4}
         color="#FFF6E8"
@@ -68,7 +48,7 @@ export const Atmosphere: React.FC<AtmosphereProps> = ({ introProgress = 1.0 }) =
       />
 
       {/* Warm limestone ambient fill */}
-      <ambientLight ref={ambientLightRef} intensity={0.9} color="#E1D8CA" />
+      <ambientLight intensity={0.9} color="#E1D8CA" />
 
       {/* Secondary Terracotta Rim Light */}
       <directionalLight
