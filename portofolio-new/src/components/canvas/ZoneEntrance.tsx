@@ -185,6 +185,289 @@ function generateTabletTexture(): THREE.CanvasTexture {
 }
 
 // =========================================================================
+// SUBTLE AMBIENT WORKSHOP MOTES (ILLUMINATED DUST PARTICLES)
+// =========================================================================
+
+function generateMoteTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gradient.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
+    gradient.addColorStop(0.25, 'rgba(255, 255, 255, 0.85)');
+    gradient.addColorStop(0.55, 'rgba(255, 255, 255, 0.35)');
+    gradient.addColorStop(0.85, 'rgba(255, 255, 255, 0.08)');
+    gradient.addColorStop(1.0, 'rgba(255, 255, 255, 0.0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 64, 64);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.generateMipmaps = false;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  return texture;
+}
+
+interface MoteItem {
+  baseX: number;
+  baseY: number;
+  baseZ: number;
+  ampX: number;
+  ampY: number;
+  ampZ: number;
+  speedX: number;
+  speedY: number;
+  speedZ: number;
+  phaseX: number;
+  phaseY: number;
+  phaseZ: number;
+  twinkleSpeed: number;
+  twinklePhase: number;
+  baseR: number;
+  baseG: number;
+  baseB: number;
+}
+
+function seededRandom(seed: number) {
+  let s = seed % 2147483647;
+  if (s <= 0) s += 2147483646;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+const WorkshopAmbientMotes: React.FC<{ progress: number }> = ({ progress }) => {
+  const pointsRef = useRef<THREE.Points>(null);
+  const materialRef = useRef<THREE.PointsMaterial>(null);
+
+  const moteTexture = useMemo(() => generateMoteTexture(), []);
+
+  const { motesData, positions, colors } = useMemo(() => {
+    const rand = seededRandom(1042);
+    const motes: MoteItem[] = [];
+    const count = 180; // 100 Background + 60 Midground + 20 Foreground
+    const pos = new Float32Array(count * 3);
+    const col = new Float32Array(count * 3);
+
+    const warmIvory = new THREE.Color('#FFF8EB');
+    const champagneWhite = new THREE.Color('#F4EFE6');
+    const goldenLinen = new THREE.Color('#E6DDD0');
+    const subtleRust = new THREE.Color('#C47B60');
+
+    for (let i = 0; i < count; i++) {
+      let bx = 0;
+      let by = 0;
+      let bz = 0;
+
+      let ampX = 0;
+      let ampY = 0;
+      let ampZ = 0;
+      let speedX = 0;
+      let speedY = 0;
+      let speedZ = 0;
+
+      if (i < 100) {
+        // =====================================================================
+        // LAYER 1: DISTANT BACKGROUND & WIDE ATMOSPHERE (100 particles)
+        // Spans the entire visible camera view: left edge, right edge, high ceiling,
+        // and deep behind the diorama plinth.
+        // =====================================================================
+        bx = (rand() - 0.5) * 15.0; // [-7.5, 7.5] widescreen coverage
+        by = 0.2 + rand() * 5.6;    // [0.2, 5.8] from floor up to high overhead space
+        bz = -1.6 - rand() * 4.6;   // [-1.6, -6.2] deep atmospheric background
+
+        ampX = 0.02 + rand() * 0.035;
+        ampY = 0.035 + rand() * 0.06;
+        ampZ = 0.02 + rand() * 0.03;
+
+        speedX = 0.15 + rand() * 0.25;
+        speedY = 0.25 + rand() * 0.35;
+        speedZ = 0.15 + rand() * 0.25;
+      } else if (i < 160) {
+        // =====================================================================
+        // LAYER 2: MIDGROUND WORKSHOP ATMOSPHERE (60 particles)
+        // Wraps organically around the active creative workshop: monitor, desk,
+        // chair, bookshelf, and lateral studio flanks.
+        // =====================================================================
+        const midIndex = i - 100;
+        if (midIndex < 24) {
+          // Sub-zone A: Behind PC setup and monitor top
+          bx = (rand() - 0.5) * 2.6; // [-1.3, 1.3]
+          by = 1.45 + rand() * 1.65; // [1.45, 3.1]
+          bz = -0.65 - rand() * 0.85;// [-0.65, -1.5]
+        } else if (midIndex < 38) {
+          // Sub-zone B: Left workshop wing and task lamp aura
+          bx = -1.2 - rand() * 2.3;  // [-3.5, -1.2]
+          by = 0.8 + rand() * 2.2;   // [0.8, 3.0]
+          bz = -0.8 + rand() * 1.5;  // [-0.8, 0.7]
+        } else if (midIndex < 52) {
+          // Sub-zone C: Right workshop wing, bookshelf silhouette & upper books
+          bx = 1.3 + rand() * 2.4;   // [1.3, 3.7]
+          by = 0.8 + rand() * 2.4;   // [0.8, 3.2]
+          bz = -0.8 + rand() * 1.5;  // [-0.8, 0.7]
+        } else {
+          // Sub-zone D: Peripheral workshop plinth flanks
+          const side = rand() > 0.5 ? 1 : -1;
+          bx = side * (1.2 + rand() * 1.2);
+          by = 0.4 + rand() * 1.4;
+          bz = 0.3 + rand() * 1.0;
+        }
+
+        ampX = 0.015 + rand() * 0.03;
+        ampY = 0.03 + rand() * 0.05;
+        ampZ = 0.015 + rand() * 0.025;
+
+        speedX = 0.2 + rand() * 0.3;
+        speedY = 0.3 + rand() * 0.4;
+        speedZ = 0.2 + rand() * 0.25;
+      } else {
+        // =====================================================================
+        // LAYER 3: FOREGROUND ATMOSPHERIC DEPTH (20 particles)
+        // Subtle, sparse floating motes in front of the workshop adding genuine 3D
+        // depth. Strictly placed away from the monitor screen to protect UI readability.
+        // =====================================================================
+        const fgIndex = i - 160;
+        if (fgIndex < 8) {
+          // Left foreground
+          bx = -1.3 - rand() * 2.2;  // [-3.5, -1.3]
+          by = 0.8 + rand() * 2.8;   // [0.8, 3.6]
+          bz = 1.6 + rand() * 2.2;   // [1.6, 3.8]
+        } else if (fgIndex < 16) {
+          // Right foreground
+          bx = 1.3 + rand() * 2.2;   // [1.3, 3.5]
+          by = 0.8 + rand() * 2.8;   // [0.8, 3.6]
+          bz = 1.6 + rand() * 2.2;   // [1.6, 3.8]
+        } else {
+          // High upper foreground canopy (well above the monitor)
+          bx = (rand() - 0.5) * 3.0; // [-1.5, 1.5]
+          by = 3.3 + rand() * 1.3;   // [3.3, 4.6]
+          bz = 1.5 + rand() * 1.8;   // [1.5, 3.3]
+        }
+
+        ampX = 0.02 + rand() * 0.035;
+        ampY = 0.04 + rand() * 0.055;
+        ampZ = 0.02 + rand() * 0.03;
+
+        speedX = 0.18 + rand() * 0.25;
+        speedY = 0.28 + rand() * 0.35;
+        speedZ = 0.18 + rand() * 0.22;
+      }
+
+      // Elegant editorial palette distribution:
+      // ~60% Warm Ivory, ~25% Champagne White, ~10% Golden Linen, ~5% Subtle Rust
+      let c = warmIvory;
+      const colRand = rand();
+      if (colRand < 0.07) {
+        c = subtleRust;
+      } else if (colRand < 0.20) {
+        c = goldenLinen;
+      } else if (colRand < 0.45) {
+        c = champagneWhite;
+      }
+
+      const mote: MoteItem = {
+        baseX: bx,
+        baseY: by,
+        baseZ: bz,
+        ampX,
+        ampY,
+        ampZ,
+        speedX,
+        speedY,
+        speedZ,
+        phaseX: rand() * Math.PI * 2,
+        phaseY: rand() * Math.PI * 2,
+        phaseZ: rand() * Math.PI * 2,
+        twinkleSpeed: 0.8 + rand() * 1.6,
+        twinklePhase: rand() * Math.PI * 2,
+        baseR: c.r,
+        baseG: c.g,
+        baseB: c.b,
+      };
+      motes.push(mote);
+
+      pos[i * 3 + 0] = bx;
+      pos[i * 3 + 1] = by;
+      pos[i * 3 + 2] = bz;
+
+      col[i * 3 + 0] = c.r;
+      col[i * 3 + 1] = c.g;
+      col[i * 3 + 2] = c.b;
+    }
+
+    return { motesData: motes, positions: pos, colors: col };
+  }, []);
+
+  useFrame(({ clock }) => {
+    if (!pointsRef.current || !materialRef.current) return;
+    if (progress > 0.22) return;
+
+    const t = clock.getElapsedTime();
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Smooth exit fade tied to Chapter 01 transition
+    let fade = 1.0;
+    if (progress > 0.12) {
+      fade = Math.max(0, 1 - (progress - 0.12) / 0.1);
+    }
+    materialRef.current.opacity = 0.76 * fade;
+
+    if (!prefersReducedMotion) {
+      const posAttr = pointsRef.current.geometry.attributes.position;
+      const colAttr = pointsRef.current.geometry.attributes.color;
+      const posArray = posAttr.array as Float32Array;
+      const colArray = colAttr.array as Float32Array;
+
+      for (let i = 0; i < motesData.length; i++) {
+        const m = motesData[i];
+        posArray[i * 3 + 0] = m.baseX + Math.sin(t * m.speedX + m.phaseX) * m.ampX;
+        posArray[i * 3 + 1] = m.baseY + Math.sin(t * m.speedY + m.phaseY) * m.ampY;
+        posArray[i * 3 + 2] = m.baseZ + Math.cos(t * m.speedZ + m.phaseZ) * m.ampZ;
+
+        // Individual asynchronous twinkling with unique frequency & phase
+        const tw = 0.74 + 0.26 * Math.sin(t * m.twinkleSpeed + m.twinklePhase);
+        colArray[i * 3 + 0] = m.baseR * tw;
+        colArray[i * 3 + 1] = m.baseG * tw;
+        colArray[i * 3 + 2] = m.baseB * tw;
+      }
+      posAttr.needsUpdate = true;
+      colAttr.needsUpdate = true;
+    }
+  });
+
+  return (
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          args={[positions, 3]}
+        />
+        <bufferAttribute
+          attach="attributes-color"
+          args={[colors, 3]}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        ref={materialRef}
+        size={0.046}
+        sizeAttenuation={true}
+        map={moteTexture}
+        transparent={true}
+        opacity={0.76}
+        vertexColors={true}
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+};
+
+// =========================================================================
 // ZONE ENTRANCE: THE CREATIVE WORKSHOP DIORAMA
 // =========================================================================
 
@@ -1053,6 +1336,11 @@ export const ZoneEntrance: React.FC<ZoneEntranceProps> = ({ progress }) => {
         distance={3.0}
         color="#E1D8CA"
       />
+
+      {/* ========================================================
+          13. SUBTLE AMBIENT WORKSHOP LIGHT PARTICLES (MOTES)
+         ======================================================== */}
+      <WorkshopAmbientMotes progress={progress} />
     </group>
   );
 };
