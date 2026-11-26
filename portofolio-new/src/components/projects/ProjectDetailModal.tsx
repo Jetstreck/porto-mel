@@ -38,8 +38,8 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({ project,
       >
         {/* Modal Top Header */}
         <div>
-          <div className="sticky top-0 z-20 bg-[#F1ECE3]/95 backdrop-blur-md px-6 sm:px-12 py-6 border-b border-[#1D1C19]/12 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="sticky top-0 z-20 bg-[#F1ECE3]/95 backdrop-blur-md px-5 sm:px-12 py-4 sm:py-6 pt-[max(1.25rem,env(safe-area-inset-top))] border-b border-[#1D1C19]/12 flex items-center justify-between">
+            <div className="flex items-center gap-2.5 sm:gap-3">
               <span className="text-xs font-semibold text-[#A65338] uppercase tracking-wider">
                 {project.category}
               </span>
@@ -51,16 +51,16 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({ project,
 
             <button
               onClick={onClose}
-              className="group flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#1D1C19] hover:text-[#A65338] transition-colors focus:outline-none"
+              className="group flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#1D1C19] hover:text-[#A65338] transition-colors focus:outline-none p-2 -mr-2"
               aria-label="Close modal"
             >
               <span>Close</span>
-              <span className="text-sm font-bold transition-transform duration-200 group-hover:rotate-90">×</span>
+              <span className="text-base font-bold transition-transform duration-200 group-hover:rotate-90">×</span>
             </button>
           </div>
 
           {/* Modal Main Body */}
-          <div className="px-6 sm:px-12 py-10 space-y-10">
+          <div className="px-5 sm:px-12 py-6 sm:py-10 space-y-8 sm:space-y-10">
             {/* Title & Subtitle */}
             <div className="space-y-3">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold tracking-tight text-[#1D1C19] leading-[1.05]">

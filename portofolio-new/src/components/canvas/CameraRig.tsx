@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { getScrollProgress } from '../../stores/scrollStore';
 
 interface CameraRigProps {
-  progress: number;
-  mouse: { x: number; y: number };
+  progress?: number;
+  mouse?: { x: number; y: number };
 }
 
 export interface CameraWaypoint {
@@ -146,27 +147,33 @@ const CAMERA_WAYPOINTS: CameraWaypoint[] = [
   },
 ];
 
+// Pre-allocated reusable scratch objects at module scope (0 per-frame allocations)
+const _scratchTargetPos = new THREE.Vector3();
+const _scratchTargetLook = new THREE.Vector3();
+const _scratchViewDir = new THREE.Vector3();
+
 /**
  * Evaluates smooth C1 continuous non-uniform cubic Hermite spline interpolation
+ * Populates outPos and outLook in-place to avoid GC memory churn
  */
 function interpolateWaypoints(
   p: number,
-  waypoints: CameraWaypoint[]
-): { pos: THREE.Vector3; look: THREE.Vector3 } {
+  waypoints: CameraWaypoint[],
+  outPos: THREE.Vector3,
+  outLook: THREE.Vector3
+): void {
   const n = waypoints.length;
   if (p <= waypoints[0].progress) {
     const w = waypoints[0];
-    return {
-      pos: new THREE.Vector3(...w.pos),
-      look: new THREE.Vector3(...w.look),
-    };
+    outPos.set(w.pos[0], w.pos[1], w.pos[2]);
+    outLook.set(w.look[0], w.look[1], w.look[2]);
+    return;
   }
   if (p >= waypoints[n - 1].progress) {
     const w = waypoints[n - 1];
-    return {
-      pos: new THREE.Vector3(...w.pos),
-      look: new THREE.Vector3(...w.look),
-    };
+    outPos.set(w.pos[0], w.pos[1], w.pos[2]);
+    outLook.set(w.look[0], w.look[1], w.look[2]);
+    return;
   }
 
   // Find active interval
@@ -211,44 +218,80 @@ function interpolateWaypoints(
     return h00 * c1 + h10 * m1 + h01 * c2 + h11 * m2;
   };
 
-  const pos = new THREE.Vector3(
+  outPos.set(
     calcSpline(p0.pos[0], p1.pos[0], p2.pos[0], p3.pos[0]),
     calcSpline(p0.pos[1], p1.pos[1], p2.pos[1], p3.pos[1]),
     calcSpline(p0.pos[2], p1.pos[2], p2.pos[2], p3.pos[2])
   );
 
-  const look = new THREE.Vector3(
+  outLook.set(
     calcSpline(p0.look[0], p1.look[0], p2.look[0], p3.look[0]),
     calcSpline(p0.look[1], p1.look[1], p2.look[1], p3.look[1]),
     calcSpline(p0.look[2], p1.look[2], p2.look[2], p3.look[2])
   );
-
-  return { pos, look };
 }
 
 export const CameraRig: React.FC<CameraRigProps> = ({ progress, mouse }) => {
-  const { camera } = useThree();
+  const { camera, size } = useThree();
   const currentPos = useRef(new THREE.Vector3(-1.2, 2.2, 11.0));
   const currentLookAt = useRef(new THREE.Vector3(0.8, 1.2, 0));
 
-  useFrame((_, delta) => {
-    // Clamp progress between 0 and 1
-    const clampedProgress = Math.min(Math.max(progress, 0.0001), 0.9999);
+  // ========================================================
+  // RESPONSIVE 3D CAMERA FOV & FRAMING
+  // On desktop (aspect >= 1.6): Preserves exact approved 40 deg FOV.
+  // On portrait & narrow screens (aspect < 1.6): Gradually adapts FOV
+  // up to 54 deg max to prevent side-clipping of diorama installations.
+  // Updates reactively on viewport resize (not per-frame).
+  // ========================================================
+  useEffect(() => {
+    const aspect = size.width / Math.max(1, size.height);
+    const targetFov = aspect >= 1.6 ? 40 : Math.min(54, 40 + (1.6 - aspect) * 12);
 
-    // Compute continuous spline interpolated targets
-    const { pos: targetPos, look: targetLook } = interpolateWaypoints(
+    if (camera instanceof THREE.PerspectiveCamera) {
+      if (Math.abs(camera.fov - targetFov) > 0.1) {
+        camera.fov = targetFov;
+        camera.updateProjectionMatrix();
+      }
+    }
+  }, [camera, size.width, size.height]);
+
+  useFrame((state, delta) => {
+    // Read continuous progress directly from decoupled store inside useFrame
+    const p = progress !== undefined ? progress : getScrollProgress();
+    const clampedProgress = Math.min(Math.max(p, 0.0001), 0.9999);
+
+    const aspect = size.width / Math.max(1, size.height);
+
+    // Compute continuous spline interpolated targets in-place (0 allocations)
+    interpolateWaypoints(
       clampedProgress,
-      CAMERA_WAYPOINTS
+      CAMERA_WAYPOINTS,
+      _scratchTargetPos,
+      _scratchTargetLook
     );
 
+    // Responsive camera position offset for portrait mode (aspect < 1.0)
+    // Pulls back smoothly along the viewing vector so all diorama elements remain visible
+    if (aspect < 1.0) {
+      const pullBack = (1.0 - aspect) * 2.2;
+      _scratchViewDir.subVectors(_scratchTargetPos, _scratchTargetLook).normalize();
+      _scratchTargetPos.addScaledVector(_scratchViewDir, pullBack);
+
+      // Gentle vertical elevation offset in portrait to balance screen composition
+      _scratchTargetPos.y += (1.0 - aspect) * 0.45;
+      _scratchTargetLook.y += (1.0 - aspect) * 0.25;
+    }
+
     // Apply subtle pointer parallax (constrained so camera never clips into objects)
-    targetPos.x += mouse.x * 0.35;
-    targetPos.y += mouse.y * 0.18;
+    const px = mouse ? mouse.x : state.pointer.x;
+    const py = mouse ? mouse.y : state.pointer.y;
+    _scratchTargetPos.x += px * 0.35;
+    _scratchTargetPos.y += py * 0.18;
 
     // Smooth cinematic dampening
     const damp = Math.min(delta * 4.0, 0.2);
-    currentPos.current.lerp(targetPos, damp);
-    currentLookAt.current.lerp(targetLook, damp);
+    currentPos.current.lerp(_scratchTargetPos, damp);
+    currentLookAt.current.lerp(_scratchTargetLook, damp);
 
     camera.position.copy(currentPos.current);
     camera.lookAt(currentLookAt.current);
