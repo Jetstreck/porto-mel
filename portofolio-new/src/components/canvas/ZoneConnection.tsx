@@ -13,56 +13,6 @@ interface ZoneConnectionProps {
 // =========================================================================
 
 /**
- * Architectural Sign Plaque Texture: Lintel Inscription
- * Clean typography in ivory & terracotta over dark honed basalt
- */
-function generateLintelSignTexture(): THREE.CanvasTexture {
-  const canvas = document.createElement('canvas');
-  canvas.width = 1024;
-  canvas.height = 160;
-  const ctx = canvas.getContext('2d');
-
-  if (!ctx) return new THREE.CanvasTexture(canvas);
-
-  // Background: Honed basalt stone
-  ctx.fillStyle = '#181714';
-  ctx.fillRect(0, 0, 1024, 160);
-
-  // Subtle bronze architectural border
-  ctx.strokeStyle = 'rgba(200, 162, 106, 0.45)';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(12, 12, 1000, 136);
-
-  // Inner framing accents
-  ctx.strokeStyle = 'rgba(241, 236, 227, 0.15)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(20, 20, 984, 120);
-
-  // Eyebrow label
-  ctx.fillStyle = '#A65338';
-  ctx.font = 'bold 15px "JetBrains Mono", monospace';
-  ctx.letterSpacing = '6px';
-  ctx.textAlign = 'center';
-  ctx.fillText('CHAPTER 05 // THE CONNECTION LOUNGE', 512, 52);
-
-  // Main inscription
-  ctx.fillStyle = '#F1ECE3';
-  ctx.font = 'bold 44px "Cinzel", "Playfair Display", Georgia, serif';
-  ctx.letterSpacing = '8px';
-  ctx.fillText("LET'S BUILD SOMETHING MEANINGFUL", 512, 104);
-
-  // Bottom coordinates & seal
-  ctx.fillStyle = 'rgba(225, 216, 202, 0.6)';
-  ctx.font = '12px "JetBrains Mono", monospace';
-  ctx.letterSpacing = '4px';
-  ctx.fillText('STUDIO MELLINO • OPEN FOR COMMISSIONS • INDONESIA (WIB)', 512, 132);
-
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.anisotropy = 4;
-  return tex;
-}
-
-/**
  * Collaboration Tablet Screen Texture
  * Interface showing active correspondence protocol, status, and direct channels
  */
@@ -399,7 +349,6 @@ export const ZoneConnection: React.FC<ZoneConnectionProps> = ({ progress }) => {
   const groupRef = useRef<THREE.Group>(null);
 
   // Generate memoized canvas textures
-  const lintelSignTex = useMemo(() => generateLintelSignTexture(), []);
   const tabletScreenTex = useMemo(() => generateTabletScreenTexture(), []);
   const monographTex = useMemo(() => generateMonographTexture(), []);
   const horizonTex = useMemo(() => generateHorizonGradientTexture(), []);
@@ -599,16 +548,6 @@ export const ZoneConnection: React.FC<ZoneConnectionProps> = ({ progress }) => {
       <mesh position={[0, 5.8, -51.2]} castShadow receiveShadow>
         <boxGeometry args={[17.6, 1.1, 1.2]} />
         <meshStandardMaterial color="#E1D8CA" roughness={0.88} metalness={0.05} />
-      </mesh>
-
-      {/* Sculptural Bronze Sign Plaque Mounted on Lintel */}
-      <mesh position={[0, 5.8, -50.56]}>
-        <boxGeometry args={[6.2, 0.85, 0.04]} />
-        <meshStandardMaterial
-          map={lintelSignTex}
-          roughness={0.65}
-          metalness={0.25}
-        />
       </mesh>
 
       {/* Warm Architectural Cove Wash on Wall */}
